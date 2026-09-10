@@ -23,6 +23,8 @@ from backend.schemas.schemas import (
     AIVisibilityResponse, DemoRunResponse, AgentTrailStep
 )
 from backend.services.mapping_service import mapping_service
+from backend.services.scrape_service import scrape_service
+from backend.services.research_service import research_service
 from backend.services.signal_service import signal_service
 from backend.services.world_model_service import world_model_service
 from backend.services.reasoning_service import reasoning_service
@@ -32,6 +34,7 @@ from backend.services.wire_service import wire_service
 from backend.services.timeline_service import timeline_service
 from backend.services.ai_visibility_service import ai_visibility_service
 from backend.services.anakin_client import anakin_client
+
 from backend.services.governor_service import governor_service
 from backend.services.vector_memory_service import vector_memory_service
 from backend.services.adversarial_oracle_service import adversarial_oracle_service
@@ -646,4 +649,70 @@ async def record_rlhf_decision(payload: Dict[str, Any]):
 @api_router.get("/rlhf/profile")
 async def get_rlhf_profile():
     return rlhf_service.get_current_profile()
+
+# 20. LIVE ANAKIN API DIAGNOSTICS & CONNECTION TEST
+@api_router.get("/anakin/test-connection")
+async def test_anakin_connection():
+    """Verify live connectivity and authentication against Anakin.io REST APIs"""
+    return await anakin_client.test_connection()
+
+@api_router.post("/anakin/reload-key")
+async def reload_anakin_key():
+    """Reload environment variables from .env dynamically without restarting the server"""
+    res = anakin_client.reload_config()
+    test_res = await anakin_client.test_connection()
+    return {
+        "reloaded": True,
+        "config": res,
+        "verification": test_res
+    }
+
+@api_router.post("/anakin/live-inspect")
+async def run_live_inspect(payload: Dict[str, Any], db: AsyncSession = Depends(get_db)):
+    """
+    Live Anakin Diagnostic Tool: Trigger live Map, Scrape, Search, or Wire on any arbitrary target domain.
+    Returns live API responses, latency metrics, and fallback verification.
+    """
+    action = payload.get("action", "scrape").lower()
+    target = payload.get("target", "https://openai.com").strip()
+    start_time = time.time()
+
+    result_data: Dict[str, Any] = {}
+    try:
+        if action == "map":
+            # Strip scheme if present
+            clean_domain = target.replace("https://", "").replace("http://", "").split("/")[0]
+            result_data = await mapping_service.map_domain(clean_domain)
+        elif action == "scrape":
+            result_data = await scrape_service.scrape_page(target)
+        elif action == "search":
+            result_data = await research_service.perform_deep_research(query=target, max_steps=2)
+        elif action == "wire":
+            result_data = await wire_service.discover_actions(query=target if target != "https://openai.com" else None)
+        else:
+            raise HTTPException(status_code=400, detail=f"Unknown action '{action}'. Supported: map, scrape, search, wire")
+
+        elapsed_ms = int((time.time() - start_time) * 1000)
+        return {
+            "status": "success",
+            "action": action,
+            "target": target,
+            "duration_ms": elapsed_ms,
+            "has_api_key": anakin_client.has_api_key(),
+            "data": result_data,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+    except Exception as e:
+        elapsed_ms = int((time.time() - start_time) * 1000)
+        logger.error(f"Live inspect error on action {action}: {e}")
+        return {
+            "status": "error",
+            "action": action,
+            "target": target,
+            "duration_ms": elapsed_ms,
+            "error": str(e),
+            "has_api_key": anakin_client.has_api_key(),
+            "data": None
+        }
+
 

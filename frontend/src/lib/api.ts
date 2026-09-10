@@ -149,5 +149,15 @@ export const api = {
       body: JSON.stringify(payload),
     }),
   getRLHFProfile: () => request<any>("/api/rlhf/profile"),
+
+  // Live Anakin Diagnostics
+  testAnakinConnection: () => request<any>("/api/anakin/test-connection"),
+  reloadAnakinKey: () => request<any>("/api/anakin/reload-key", { method: "POST" }),
+  liveInspectAnakin: (action: string, target: string) =>
+    request<any>("/api/anakin/live-inspect", {
+      method: "POST",
+      body: JSON.stringify({ action, target }),
+    }),
 };
+
 

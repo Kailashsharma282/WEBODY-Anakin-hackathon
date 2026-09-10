@@ -4,9 +4,18 @@ import asyncio
 import logging
 from typing import Dict, Any, Optional, List
 import httpx
+from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
+# Search and load .env from project root or backend folder
+for env_candidate in [
+    Path.cwd() / ".env",
+    Path(__file__).resolve().parent.parent / ".env",
+    Path(__file__).resolve().parent.parent.parent / ".env"
+]:
+    if env_candidate.exists():
+        load_dotenv(dotenv_path=env_candidate, override=True)
+
 
 logger = logging.getLogger("webody.anakin_client")
 logging.basicConfig(level=logging.INFO)
@@ -52,7 +61,12 @@ class AnakinClient:
         self.timeout_seconds = float(os.getenv("ANAKIN_TIMEOUT", "30.0"))
 
     def has_api_key(self) -> bool:
-        return bool(self.api_key and len(self.api_key) > 5)
+        if not self.api_key or len(self.api_key) < 8:
+            return False
+        if "your_" in self.api_key or "placeholder" in self.api_key or self.api_key == "test_key":
+            return False
+        return True
+
 
     def _get_headers(self) -> Dict[str, str]:
         headers = {
@@ -197,6 +211,7 @@ class AnakinClient:
         Performs real-time web search with source citations and structured snippets.
         """
         payload = {
+            "prompt": query,
             "query": query,
             "num_results": num_results
         }
@@ -208,10 +223,12 @@ class AnakinClient:
         Runs Anakin's multi-step deep research agent to gather multi-source evidence.
         """
         payload = {
+            "prompt": query,
             "query": query,
             "max_steps": max_steps
         }
         return await self._request("POST", "/v1/agentic-search", payload=payload)
+
 
     # ================= 6. WEBSITE MONITORING =================
     async def get_monitors(self) -> Dict[str, Any]:
@@ -268,10 +285,13 @@ class AnakinClient:
         STRICT RULE: Never claim an action succeeded unless confirmed by API.
         """
         payload = {
+            "action_id": action_id,
             "action": action_id,
-            "parameters": parameters
+            "parameters": parameters,
+            "payload": parameters
         }
         return await self._request("POST", "/v1/wire/task", payload=payload)
+
 
     async def get_wire_job_status(self, job_id: str) -> Dict[str, Any]:
         """
@@ -357,4 +377,80 @@ class AnakinClient:
             results = [a for a in results if q in a["name"].lower() or q in a["description"].lower() or q in a["action_id"].lower()]
         return results
 
+    def reload_config(self) -> Dict[str, Any]:
+        """Dynamically reload environment variables from .env without process restart"""
+        for env_candidate in [
+            Path.cwd() / ".env",
+            Path(__file__).resolve().parent.parent / ".env",
+            Path(__file__).resolve().parent.parent.parent / ".env"
+        ]:
+            if env_candidate.exists():
+                load_dotenv(dotenv_path=env_candidate, override=True)
+        self.api_key = os.getenv("ANAKIN_API_KEY", "").strip()
+        self.base_url = (os.getenv("ANAKIN_BASE_URL", "https://api.anakin.io")).rstrip("/")
+        logger.info(f"AnakinClient config reloaded. Key present: {self.has_api_key()}")
+        return {"has_key": self.has_api_key(), "base_url": self.base_url}
+
+    async def test_connection(self) -> Dict[str, Any]:
+        """
+        Verify the configured Anakin API key against the live server.
+        Measures round-trip latency and validates authentication status.
+        """
+        self.reload_config()
+        if not self.has_api_key() or self.api_key == "your_official_anakin_api_key_here":
+            return {
+                "status": "missing_key",
+                "authenticated": False,
+                "latency_ms": 0,
+                "message": "ANAKIN_API_KEY is unset or placeholder in .env. Operating in Demo Reliability Mode.",
+                "base_url": self.base_url
+            }
+
+        start_time = time.time()
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                res = await client.get(
+                    f"{self.base_url}/v1/wire/catalogs",
+                    headers=self._get_headers()
+                )
+                latency = int((time.time() - start_time) * 1000)
+                if res.status_code in [200, 201]:
+                    return {
+                        "status": "authenticated",
+                        "authenticated": True,
+                        "latency_ms": latency,
+                        "status_code": res.status_code,
+                        "message": "Successfully authenticated with Anakin.io REST APIs.",
+                        "base_url": self.base_url,
+                        "key_preview": f"{self.api_key[:6]}...{self.api_key[-4:]}" if len(self.api_key) > 10 else "***"
+                    }
+                elif res.status_code == 401:
+                    return {
+                        "status": "unauthorized",
+                        "authenticated": False,
+                        "latency_ms": latency,
+                        "status_code": 401,
+                        "message": "Invalid API key (401 Unauthorized). Please verify key in .env.",
+                        "base_url": self.base_url
+                    }
+                else:
+                    return {
+                        "status": "connected_with_notice",
+                        "authenticated": True,
+                        "latency_ms": latency,
+                        "status_code": res.status_code,
+                        "message": f"Server responded with status {res.status_code}.",
+                        "base_url": self.base_url
+                    }
+        except Exception as e:
+            latency = int((time.time() - start_time) * 1000)
+            return {
+                "status": "unreachable",
+                "authenticated": False,
+                "latency_ms": latency,
+                "message": f"Could not reach {self.base_url} ({str(e)}). Demo Reliability active.",
+                "base_url": self.base_url
+            }
+
 anakin_client = AnakinClient()
+
