@@ -72,6 +72,10 @@ class VectorMemoryService:
 
     def _seed_historical_memories(self):
         """Pre-seeds historical competitive market precedents for contextual reasoning."""
+        import json
+        from pathlib import Path
+
+        # Built-in core memories
         memories = [
             (
                 "mem-001",
@@ -96,5 +100,25 @@ class VectorMemoryService:
         ]
         for mid, txt, meta in memories:
             self.add_memory(mid, txt, meta)
+
+        # Ingest rich seed dataset if available
+        seed_path = Path(__file__).resolve().parent.parent / "data" / "seed_intelligence.json"
+        if seed_path.exists():
+            try:
+                with open(seed_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    for item in data:
+                        mid = item.get("id")
+                        text = f"{item.get('title', '')}. {item.get('summary', '')} Lesson: {item.get('precedent_lesson', '')}"
+                        meta = {
+                            "entity": item.get("entity"),
+                            "category": item.get("category"),
+                            "event_type": item.get("event_type"),
+                            "impact_score": item.get("impact_score")
+                        }
+                        self.add_memory(mid, text, meta)
+                logger.info(f"Loaded {len(data)} benchmark precedent memories from {seed_path.name}")
+            except Exception as e:
+                logger.warning(f"Could not load seed dataset: {e}")
 
 vector_memory_service = VectorMemoryService()

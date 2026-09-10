@@ -32,6 +32,9 @@ import { EvidencePanel } from "../components/EvidencePanel";
 import { DependencyMap } from "../components/DependencyMap";
 import { NextGenHub } from "../components/NextGenHub";
 import { AnakinInspector } from "../components/AnakinInspector";
+import { SentinelDiffModal } from "../components/SentinelDiffModal";
+import { IntelligenceTicker } from "../components/IntelligenceTicker";
+
 
 // Icons
 import {
@@ -60,7 +63,8 @@ import {
   Volume2,
   VolumeX,
   FileDown,
-  Activity
+  Activity,
+  Split
 } from "lucide-react";
 
 
@@ -92,6 +96,8 @@ export default function Dashboard() {
   const [activeSimulationScenarios, setActiveSimulationScenarios] = useState<Scenario[]>([]);
   const [activeExecutedAction, setActiveExecutedAction] = useState<Action | null>(null);
   const [agentTrail, setAgentTrail] = useState<AgentTrailStep[]>([]);
+  const [isDiffModalOpen, setIsDiffModalOpen] = useState<boolean>(false);
+
   
   // Loading & Execution States
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -436,6 +442,16 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
               <span>DOSSIER</span>
             </button>
 
+            {/* Visual Sentinel Diff Inspector */}
+            <button
+              onClick={() => setIsDiffModalOpen(true)}
+              className="hidden md:flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300 hover:text-hud-rose hover:border-hud-rose/50 transition-all"
+              title="Open Sentinel Side-by-Side Change Diff"
+            >
+              <Split className="w-3.5 h-3.5 text-hud-rose" />
+              <span>SENTINEL DIFF</span>
+            </button>
+
             {/* Deterministic Demo Button (Sections 21 & 36) */}
             <button
               onClick={handleRunTheFuture}
@@ -473,8 +489,12 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
         </div>
       </header>
 
+      {/* Cyber Intelligence Live Ticker Tape */}
+      <IntelligenceTicker onOpenDiff={() => setIsDiffModalOpen(true)} />
+
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
         {/* Section 10 Landing Dashboard Headline */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-slate-800/80">
           <div>
@@ -615,10 +635,12 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
                     onWhyCare={handleWhyShouldICare}
                     onWhatNext={handleWhatHappensNext}
                     onWhatDo={handleWhatCanWeDo}
+                    onViewDiff={() => setIsDiffModalOpen(true)}
                     isInvestigating={investigatingSignalId === sig.id}
                     isPredicting={predictingSignalId === sig.id}
                     isSimulating={simulatingSignalId === sig.id}
                   />
+
                 ))}
               </div>
             </div>
@@ -725,10 +747,12 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
                   onWhyCare={handleWhyShouldICare}
                   onWhatNext={handleWhatHappensNext}
                   onWhatDo={handleWhatCanWeDo}
+                  onViewDiff={() => setIsDiffModalOpen(true)}
                   isInvestigating={investigatingSignalId === sig.id}
                   isPredicting={predictingSignalId === sig.id}
                   isSimulating={simulatingSignalId === sig.id}
                 />
+
               ))}
             </div>
           </div>
@@ -1019,6 +1043,17 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
         action={activeExecutedAction}
         onClose={() => setActiveExecutedAction(null)}
       />
+
+      {/* Sentinel Side-by-Side Diff Modal (Feature 4) */}
+      <SentinelDiffModal
+        isOpen={isDiffModalOpen}
+        onClose={() => setIsDiffModalOpen(false)}
+        onSimulate={() => {
+          setIsDiffModalOpen(false);
+          setActiveTab("SIMULATIONS");
+        }}
+      />
+
 
       {/* Footer */}
       <footer className="w-full border-t border-slate-900 py-6 px-4 sm:px-8 text-center text-xs font-mono text-slate-500">

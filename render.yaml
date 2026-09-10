@@ -1,0 +1,31 @@
+# ==============================================================================
+# WEBODY — Render.com Blueprint Deployment Specification
+# Hackathon: Anakin Forge | Participant: Pochiraju Kailash Ram Markandeya Sharma
+# Team: kailashsharma
+# ==============================================================================
+
+services:
+  - type: web
+    name: webody-backend
+    runtime: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        value: sqlite+aiosqlite:///./webody.db
+      - key: ANAKIN_BASE_URL
+        value: https://api.anakin.io
+      - key: ANAKIN_TIMEOUT
+        value: "30.0"
+      - key: ANAKIN_MAX_RETRIES
+        value: "3"
+      - key: ANAKIN_API_KEY
+        sync: false

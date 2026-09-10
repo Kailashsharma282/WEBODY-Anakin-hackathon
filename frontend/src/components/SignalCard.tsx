@@ -10,7 +10,8 @@ import {
   Clock,
   Radio,
   ExternalLink,
-  ShieldAlert
+  ShieldAlert,
+  Split
 } from "lucide-react";
 
 interface SignalCardProps {
@@ -18,6 +19,7 @@ interface SignalCardProps {
   onWhyCare: (signal: Signal) => void;
   onWhatNext: (signal: Signal) => void;
   onWhatDo: (signal: Signal) => void;
+  onViewDiff?: (signal: Signal) => void;
   isInvestigating?: boolean;
   isPredicting?: boolean;
   isSimulating?: boolean;
@@ -28,10 +30,12 @@ export const SignalCard: React.FC<SignalCardProps> = ({
   onWhyCare,
   onWhatNext,
   onWhatDo,
+  onViewDiff,
   isInvestigating = false,
   isPredicting = false,
   isSimulating = false,
 }) => {
+
   const severityColors = {
     critical: "bg-hud-rose/10 text-hud-rose border-hud-rose/30",
     high: "bg-hud-amber/10 text-hud-amber border-hud-amber/30",
@@ -116,13 +120,26 @@ export const SignalCard: React.FC<SignalCardProps> = ({
             <ExternalLink className="w-2.5 h-2.5" />
           </a>
         </div>
-        <div>
-          ACTIONABILITY:{" "}
-          <span className={`font-bold uppercase ${actionabilityColors[signal.actionability as keyof typeof actionabilityColors] || "text-slate-300"}`}>
-            {signal.actionability}
-          </span>
+        <div className="flex items-center gap-3">
+          {onViewDiff && (
+            <button
+              onClick={() => onViewDiff(signal)}
+              className="flex items-center gap-1 px-2 py-0.5 rounded bg-hud-rose/15 hover:bg-hud-rose/25 text-hud-rose border border-hud-rose/40 transition-colors text-[10px] font-bold"
+              title="Inspect Sentinel Side-by-Side Change Diff"
+            >
+              <Split className="w-3 h-3" />
+              <span>INSPECT DIFF</span>
+            </button>
+          )}
+          <div>
+            ACTIONABILITY:{" "}
+            <span className={`font-bold uppercase ${actionabilityColors[signal.actionability as keyof typeof actionabilityColors] || "text-slate-300"}`}>
+              {signal.actionability}
+            </span>
+          </div>
         </div>
       </div>
+
 
       {/* The 3 Core Section 17-19 Action Buttons */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">

@@ -1,0 +1,72 @@
+[
+  {
+    "id": "mem_01",
+    "entity": "Competitor X",
+    "event_type": "PRICING_SHIFT",
+    "title": "Competitor X cuts enterprise pricing by 22% and bundles AI governance suite",
+    "summary": "Aggressive enterprise market repositioning to capture mid-market AI companies by undercutting Acme AI base price and eliminating add-on fees.",
+    "category": "commercial",
+    "impact_score": 92,
+    "precedent_lesson": "Direct price matching triggers margin erosion; differentiation via SLA and certified compliance yields +34% higher retention."
+  },
+  {
+    "id": "mem_02",
+    "entity": "OpenAI",
+    "event_type": "API_PRICE_CUT",
+    "title": "OpenAI drops GPT-4o mini pricing by 60% with batch processing API",
+    "summary": "Radical price drop across high-throughput inference endpoints aiming to price out open-weights hosting providers.",
+    "category": "infrastructure",
+    "impact_score": 88,
+    "precedent_lesson": "Infrastructure price commoditization forces software layer to shift value capture to proprietary workflows and agent orchestration."
+  },
+  {
+    "id": "mem_03",
+    "entity": "Anthropic",
+    "event_type": "FEATURE_LAUNCH",
+    "title": "Anthropic introduces Computer Use API for automated desktop agent workflows",
+    "summary": "Breakthrough autonomous capability enabling models to interact directly with web browsers and software GUI.",
+    "category": "capability",
+    "impact_score": 95,
+    "precedent_lesson": "Agentic automation capabilities expand total addressable market from passive assistant to active software operator."
+  },
+  {
+    "id": "mem_04",
+    "entity": "European AI Office",
+    "event_type": "REGULATORY_ENACTMENT",
+    "title": "EU AI Act enters force with mandatory conformity assessments for systemic risk GPAI",
+    "summary": "Article 43 and Article 55 obligations mandate third-party algorithmic audits and 24-month immutable logging.",
+    "category": "compliance",
+    "impact_score": 94,
+    "precedent_lesson": "Enterprises rapidly abandon non-compliant vendors in favor of pre-certified governance providers."
+  },
+  {
+    "id": "mem_05",
+    "entity": "Stripe",
+    "event_type": "BILLING_PACKAGING",
+    "title": "Stripe launches usage-based billing engine with automated tax calculation bundling",
+    "summary": "Packaging shift bundling previously paid add-ons into unified platform fee to lock in SaaS developer ecosystem.",
+    "category": "commercial",
+    "impact_score": 85,
+    "precedent_lesson": "Bundling ancillary features into core tiers increases stickiness and drives multi-year enterprise contract commitments."
+  },
+  {
+    "id": "mem_06",
+    "entity": "AWS",
+    "event_type": "INFRASTRUCTURE_EXPANSION",
+    "title": "AWS Bedrock expands European sovereign regions with dedicated KMS encryption",
+    "summary": "Hyperscaler sovereign cloud play specifically targeting regulated German and French banking and healthcare customers.",
+    "category": "infrastructure",
+    "impact_score": 89,
+    "precedent_lesson": "Data sovereignty guarantees allow premium 20-30% pricing over standard US multi-tenant regions."
+  },
+  {
+    "id": "mem_07",
+    "entity": "Databricks",
+    "event_type": "COMPETITIVE_ACQUISITION",
+    "title": "Databricks acquires tabular data and AI governance startup for $1B+",
+    "summary": "Strategic move to block Snowflake from controlling the open table format metadata standard.",
+    "category": "m_and_a",
+    "impact_score": 91,
+    "precedent_lesson": "Metadata layer control dictates long-term enterprise AI platform lock-in."
+  }
+]

@@ -89,8 +89,14 @@ export const WorldGraph: React.FC<WorldGraphProps> = ({
   };
 
   return (
-    <div className="relative w-full h-[540px] glass-panel rounded-xl overflow-hidden border border-surface-border">
+    <div className="relative w-full h-[540px] glass-panel rounded-xl overflow-hidden border border-surface-border radar-grid">
+      {/* Radar Sonar Sweep Effect */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-40">
+        <div className="radar-sweep" />
+      </div>
+
       {/* HUD Header overlay */}
+
       <div className="absolute top-4 left-4 z-10 flex items-center gap-3">
         <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/80 border border-slate-700/60 text-xs font-mono">
           <span className="w-2 h-2 rounded-full bg-hud-cyan animate-ping" />
