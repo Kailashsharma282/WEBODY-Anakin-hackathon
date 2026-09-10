@@ -1,0 +1,10 @@
+{
+  "name": "webody-frontend-fallback",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "postinstall": "cd .. && npm install",
+    "build": "cd .. && npm run build",
+    "start": "cd .. && npm run start"
+  }
+}
