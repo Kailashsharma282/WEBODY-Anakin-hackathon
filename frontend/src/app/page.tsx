@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   WorldGraph,
   Signal,
@@ -35,6 +35,9 @@ import { AnakinInspector } from "../components/AnakinInspector";
 import { SentinelDiffModal } from "../components/SentinelDiffModal";
 import { IntelligenceTicker } from "../components/IntelligenceTicker";
 import { ScenarioSimulatorControls } from "../components/ScenarioSimulatorControls";
+import { WarRoomSimulator } from "../components/WarRoomSimulator";
+import { WireActionDispatcher } from "../components/WireActionDispatcher";
+import { CryptographicAuditModal } from "../components/CryptographicAuditModal";
 
 
 // Icons
@@ -53,6 +56,8 @@ import {
   RotateCw,
   CheckCircle2,
   ShieldAlert,
+  ShieldCheck,
+  Swords,
   Layers,
   Award,
   ExternalLink,
@@ -98,6 +103,9 @@ export default function Dashboard() {
   const [activeExecutedAction, setActiveExecutedAction] = useState<Action | null>(null);
   const [agentTrail, setAgentTrail] = useState<AgentTrailStep[]>([]);
   const [isDiffModalOpen, setIsDiffModalOpen] = useState<boolean>(false);
+  const [isAuditModalOpen, setIsAuditModalOpen] = useState<boolean>(false);
+  const [selectedRivalry, setSelectedRivalry] = useState<string>("canonical");
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   
   // Loading & Execution States
@@ -222,7 +230,7 @@ export default function Dashboard() {
     setIsDemoRunning(true);
     setDemoTakeaway(null);
     try {
-      const demoRes: DemoRunResponse = await api.runDeterministicDemo();
+      const demoRes: DemoRunResponse = await api.runDeterministicDemo(selectedRivalry);
 
       // Update State with Demo Artifacts
       setAgentTrail(demoRes.agent_trail);
@@ -335,28 +343,47 @@ export default function Dashboard() {
   };
 
   const handlePlayBriefing = () => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-      alert("Speech synthesis is not supported in this browser.");
-      return;
-    }
     if (isPlayingAudio) {
-      window.speechSynthesis.cancel();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
       setIsPlayingAudio(false);
       return;
     }
 
-    const text = demoTakeaway
-      ? `Attention executive leadership. Autonomous intelligence cycle complete. ${demoTakeaway}. All counter-measures staged and validated.`
-      : `WEBODY Living Operating System online. Monitoring competitive landscape. High volatility detected for Competitor X with 22 percent price reduction. Counter-strategy Differentiate recommended with plus 90 net benefit score.`;
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 1.0;
-    utterance.pitch = 0.95;
-    utterance.onstart = () => setIsPlayingAudio(true);
-    utterance.onend = () => setIsPlayingAudio(false);
-    utterance.onerror = () => setIsPlayingAudio(false);
-
-    window.speechSynthesis.speak(utterance);
+    try {
+      if (!audioRef.current) {
+        audioRef.current = new Audio("/webody_narration.wav");
+        audioRef.current.onended = () => setIsPlayingAudio(false);
+        audioRef.current.onerror = () => {
+          // Fallback to Web Speech API
+          if (typeof window !== "undefined" && "speechSynthesis" in window) {
+            const text = demoTakeaway || "WEBODY Living Operating System online. Monitoring competitive landscape.";
+            const u = new SpeechSynthesisUtterance(text);
+            u.onend = () => setIsPlayingAudio(false);
+            window.speechSynthesis.speak(u);
+            setIsPlayingAudio(true);
+          }
+        };
+      }
+      audioRef.current.play().then(() => {
+        setIsPlayingAudio(true);
+      }).catch(() => {
+        if (typeof window !== "undefined" && "speechSynthesis" in window) {
+          const text = demoTakeaway || "WEBODY Living Operating System online. Monitoring competitive landscape.";
+          const u = new SpeechSynthesisUtterance(text);
+          u.onend = () => setIsPlayingAudio(false);
+          window.speechSynthesis.speak(u);
+          setIsPlayingAudio(true);
+        }
+      });
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const handleExportDossier = () => {
@@ -410,7 +437,8 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
     { id: "SIGNALS", label: "SIGNALS", icon: Radio },
     { id: "PREDICTIONS", label: "PREDICTIONS", icon: TrendingUp },
     { id: "SIMULATIONS", label: "SIMULATIONS", icon: SlidersHorizontal },
-    { id: "ACTIONS", label: "ACTIONS", icon: Zap },
+    { id: "WAR_ROOM", label: "WAR ROOM", icon: Swords },
+    { id: "ACTIONS", label: "ACTIONS (WIRE)", icon: Zap },
     { id: "TIMELINE", label: "TIMELINE", icon: Clock },
     { id: "AI REPUTATION", label: "AI REPUTATION", icon: Sparkles },
     { id: "NEXT_GEN", label: "COGNITION & RADAR", icon: Brain },
@@ -521,6 +549,33 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
               <Split className="w-3.5 h-3.5 text-hud-rose" />
               <span>SENTINEL DIFF</span>
             </button>
+
+            {/* Cryptographic Forensic Audit Button */}
+            <button
+              onClick={() => setIsAuditModalOpen(true)}
+              className="hidden xl:flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300 hover:text-hud-emerald hover:border-hud-emerald/50 transition-all"
+              title="Inspect Verifiable SHA-256 Cryptographic Provenance Chain"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-hud-emerald" />
+              <span>AUDIT PROOF</span>
+            </button>
+
+            {/* Rivalry Benchmark Selector */}
+            <div className="hidden xl:flex items-center gap-1.5 bg-slate-900 border border-slate-700/80 rounded-lg px-2 py-1.5 text-xs font-mono">
+              <Swords className="w-3.5 h-3.5 text-hud-amber" />
+              <select
+                value={selectedRivalry}
+                onChange={(e) => setSelectedRivalry(e.target.value)}
+                className="bg-transparent text-slate-200 outline-none text-xs cursor-pointer font-medium"
+                title="Select Competitive Benchmark Rivalry"
+              >
+                <option value="canonical" className="bg-slate-900 text-slate-200">Acme vs. Competitor X (-22%)</option>
+                <option value="frontier_ai" className="bg-slate-900 text-slate-200">Anthropic vs. OpenAI (Price War)</option>
+                <option value="cloud_agents" className="bg-slate-900 text-slate-200">DeepMind vs. Microsoft (Copilot)</option>
+                <option value="crm_agents" className="bg-slate-900 text-slate-200">Salesforce vs. HubSpot (Breeze)</option>
+                <option value="defense_data" className="bg-slate-900 text-slate-200">Palantir vs. Snowflake (Sovereign)</option>
+              </select>
+            </div>
 
             {/* Deterministic Demo Button (Sections 21 & 36) */}
             <button
@@ -903,54 +958,38 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
           </div>
         )}
 
+        {/* TAB: WAR ROOM (Game-Theoretic Equilibrium) */}
+        {activeTab === "WAR_ROOM" && (
+          <WarRoomSimulator />
+        )}
+
         {/* TAB 7: ACTIONS (Hands / Wire) */}
         {activeTab === "ACTIONS" && (
-          <div className="glass-panel p-6 rounded-xl border border-surface-border space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800">
-              <div>
-                <span className="text-xs font-mono text-hud-rose uppercase font-bold">
-                  HANDS ACTION ENGINE (ANAKIN WIRE)
-                </span>
-                <h2 className="text-xl font-bold font-mono text-slate-100">
-                  External Workflow Execution & Audit Logs
-                </h2>
-              </div>
-              <button
-                onClick={async () => {
-                  const cat = await api.discoverActions();
-                  alert(`Discovered ${cat.count} Wire actions: ${cat.actions.map((a: any) => a.action_id).join(", ")}`);
-                }}
-                className="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs font-mono text-slate-300 hover:text-hud-cyan transition-all"
-              >
-                DISCOVER WIRE CATALOG
-              </button>
-            </div>
+          <div className="space-y-6">
+            <WireActionDispatcher />
 
-            {activeExecutedAction ? (
-              <div className="p-5 rounded-xl bg-slate-950/70 border border-slate-800 space-y-3 text-xs font-mono">
-                <div className="flex justify-between items-center">
-                  <span className="text-hud-emerald font-bold text-sm">
-                    {activeExecutedAction.name}
+            {activeExecutedAction && (
+              <div className="glass-panel p-5 rounded-xl border border-surface-border space-y-3 text-xs font-mono">
+                <div className="flex justify-between items-center pb-2 border-b border-slate-800">
+                  <span className="text-hud-emerald font-bold text-sm flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-hud-emerald" />
+                    MOST RECENT EXECUTED ACTION
                   </span>
                   <span className="px-2 py-0.5 rounded bg-hud-emerald/20 text-hud-emerald border border-hud-emerald/40 uppercase">
                     {activeExecutedAction.status}
                   </span>
                 </div>
                 <div className="text-slate-400">
-                  ACTION ID: <span className="text-slate-200">{activeExecutedAction.action_id}</span>
+                  ACTION: <span className="text-slate-200 font-bold">{activeExecutedAction.name} ({activeExecutedAction.action_id})</span>
                 </div>
                 {activeExecutedAction.external_id && (
                   <div className="text-slate-400">
-                    WIRE EXTERNAL REF: <span className="text-slate-200">{activeExecutedAction.external_id}</span>
+                    WIRE REF: <span className="text-hud-cyan font-bold">{activeExecutedAction.external_id}</span>
                   </div>
                 )}
-                <div className="p-3 bg-slate-900 rounded border border-slate-800 whitespace-pre-wrap text-slate-300">
+                <div className="p-3 bg-slate-900 rounded border border-slate-800 whitespace-pre-wrap text-slate-300 max-h-40 overflow-y-auto">
                   {JSON.stringify(activeExecutedAction.payload, null, 2)}
                 </div>
-              </div>
-            ) : (
-              <div className="text-xs font-mono text-slate-500 py-8 text-center">
-                NO ACTIONS EXECUTED YET IN CURRENT SESSION.
               </div>
             )}
           </div>
@@ -1125,6 +1164,12 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
           setIsDiffModalOpen(false);
           setActiveTab("SIMULATIONS");
         }}
+      />
+
+      {/* Cryptographic Forensic Provenance Modal */}
+      <CryptographicAuditModal
+        isOpen={isAuditModalOpen}
+        onClose={() => setIsAuditModalOpen(false)}
       />
 
 

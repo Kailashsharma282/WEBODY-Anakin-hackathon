@@ -366,6 +366,30 @@ class AnakinClient:
                     "target_url": {"type": "string", "description": "Destination endpoint URL"},
                     "payload": {"type": "object", "description": "Structured execution data"}
                 }
+            },
+            {
+                "action_id": "hubspot.deal.protect",
+                "name": "Guard Enterprise CRM Pipeline Deals",
+                "service": "hubspot",
+                "description": "Flag CRM enterprise deals at risk of competitor pricing disruption and auto-attach governance counter-dossier.",
+                "required_inputs": ["pipeline_id", "risk_threshold", "counter_bundle_id"],
+                "input_schema": {
+                    "pipeline_id": {"type": "string", "description": "HubSpot Sales Pipeline identifier"},
+                    "risk_threshold": {"type": "number", "description": "Probability threshold (e.g. 0.70) to trigger deal lock"},
+                    "counter_bundle_id": {"type": "string", "description": "Strategic bundle identifier (e.g. GOV_COMPLIANCE_2026)"}
+                }
+            },
+            {
+                "action_id": "linear.issue.create",
+                "name": "Dispatch Priority Engineering Countermeasure",
+                "service": "linear",
+                "description": "Create a P0 engineering ticket in Linear to accelerate defensive product roadmap commitments.",
+                "required_inputs": ["team_id", "title", "priority"],
+                "input_schema": {
+                    "team_id": {"type": "string", "description": "Linear Team Key (e.g. ENG, SEC)"},
+                    "title": {"type": "string", "description": "Title of defensive countermeasure task"},
+                    "priority": {"type": "integer", "description": "Priority 0-4 (0 = Urgent, 1 = High)"}
+                }
             }
         ]
 

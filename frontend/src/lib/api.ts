@@ -130,11 +130,29 @@ export const api = {
       body: JSON.stringify(settings),
     }),
 
-  // Deterministic Demo Runner ("RUN THE FUTURE")
-  runDeterministicDemo: () =>
-    request<DemoRunResponse>("/api/demo/run", {
+  // Deterministic Demo Runner ("RUN THE FUTURE" with optional Rivalry Selection)
+  runDeterministicDemo: (rivalryId?: string) =>
+    request<DemoRunResponse>(
+      rivalryId ? `/api/demo/run?rivalry_id=${encodeURIComponent(rivalryId)}` : "/api/demo/run",
+      { method: "POST" }
+    ),
+
+  // Multi-Turn Adversarial War Room Simulator
+  runWarRoomSimulation: (payload: {
+    primary_scenario?: string;
+    competitor_name?: string;
+    brand_name?: string;
+    risk_aversion?: number;
+    margin_priority?: number;
+    differentiation_priority?: number;
+  }) =>
+    request<any>("/api/war-room/simulate", {
       method: "POST",
+      body: JSON.stringify(payload),
     }),
+
+  // Cryptographic Provenance & Forensic Audit Chain
+  getAuditProvenance: () => request<any>("/api/audit/provenance"),
 
   // Next-Gen Enhancements
   getGovernorVolatility: (entity: string) =>
@@ -173,5 +191,6 @@ export const api = {
       body: JSON.stringify({ action, target }),
     }),
 };
+
 
 
