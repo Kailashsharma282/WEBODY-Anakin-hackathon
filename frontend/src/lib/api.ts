@@ -17,20 +17,34 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${BASE_URL}${endpoint}`;
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(options?.headers || {}),
-    },
-  });
+  try {
+    const res = await fetch(url, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(options?.headers || {}),
+      },
+    });
 
-  if (!res.ok) {
-    const errText = await res.text();
-    throw new Error(`API Error ${res.status}: ${errText}`);
+    if (!res.ok) {
+      let errMsg = `API Error ${res.status}`;
+      try {
+        const errJson = await res.json();
+        errMsg = errJson.detail || errJson.message || errJson.error || JSON.stringify(errJson);
+      } catch {
+        const errText = await res.text();
+        if (errText) errMsg = errText;
+      }
+      throw new Error(errMsg);
+    }
+
+    return await res.json();
+  } catch (err: any) {
+    if (err.message && err.message.includes("Failed to fetch")) {
+      throw new Error("Unable to reach WEBODY backend service. Please verify server is running on port 8000.");
+    }
+    throw err;
   }
-
-  return res.json();
 }
 
 export const api = {

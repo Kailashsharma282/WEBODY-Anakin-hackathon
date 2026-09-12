@@ -68,5 +68,85 @@
     "category": "m_and_a",
     "impact_score": 91,
     "precedent_lesson": "Metadata layer control dictates long-term enterprise AI platform lock-in."
+  },
+  {
+    "id": "mem_08",
+    "entity": "Google DeepMind",
+    "event_type": "MODEL_BREAKTHROUGH",
+    "title": "Google DeepMind releases Gemini 2.0 with multimodal real-time tool grounding",
+    "summary": "Native agentic tool calling and sub-200ms latency execution threatening specialized third-party agent wrapper startups.",
+    "category": "capability",
+    "impact_score": 93,
+    "precedent_lesson": "Native frontier model reasoning forces agent platforms to provide persistent world memory and action authorization safeguards."
+  },
+  {
+    "id": "mem_09",
+    "entity": "Microsoft",
+    "event_type": "COMMERCIAL_BUNDLING",
+    "title": "Microsoft Copilot Enterprise bundled into Microsoft 365 E5 at discounted annual rate",
+    "summary": "Mass-market enterprise bundling aimed at preempting standalone generative AI productivity tool adoption in Fortune 1000.",
+    "category": "commercial",
+    "impact_score": 90,
+    "precedent_lesson": "Distribution-led bundling requires competitors to double down on deep domain expertise and proprietary integrations."
+  },
+  {
+    "id": "mem_10",
+    "entity": "Mistral AI",
+    "event_type": "OPEN_WEIGHTS_RELEASE",
+    "title": "Mistral releases high-efficiency enterprise reasoning model with self-host Apache 2.0 license",
+    "summary": "Enables air-gapped financial institutions and defense contractors to deploy frontier reasoning without external API calls.",
+    "category": "infrastructure",
+    "impact_score": 87,
+    "precedent_lesson": "Air-gapped and on-premise deployment requirements are impenetrable moats against cloud-only API vendors."
+  },
+  {
+    "id": "mem_11",
+    "entity": "Snowflake",
+    "event_type": "PLATFORM_EXPANSION",
+    "title": "Snowflake launches Cortex Search & Document AI integrated into core data warehouse",
+    "summary": "Reduces data egress friction by allowing enterprise SQL queries directly over unstructured PDF and legal documents.",
+    "category": "technology",
+    "impact_score": 86,
+    "precedent_lesson": "Bringing compute directly to data storage beats architectures that require moving terabytes to external vector stores."
+  },
+  {
+    "id": "mem_12",
+    "entity": "Salesforce",
+    "event_type": "USAGE_PRICING_SHIFT",
+    "title": "Salesforce Agentforce shifts to $2 per completed conversation transaction model",
+    "summary": "Move away from traditional per-seat enterprise SaaS licensing toward outcome-based autonomous agent consumption.",
+    "category": "commercial",
+    "impact_score": 92,
+    "precedent_lesson": "Outcome-based pricing aligns vendor incentives with customer success and accelerates enterprise procurement."
+  },
+  {
+    "id": "mem_13",
+    "entity": "Meta",
+    "event_type": "LICENSING_UPDATE",
+    "title": "Meta Llama ecosystem introduces enterprise commercial indemnification partnership",
+    "summary": "Resolves legal copyright and IP liability risks for enterprise Fortune 500 deployments of open-weights models.",
+    "category": "compliance",
+    "impact_score": 88,
+    "precedent_lesson": "Legal and compliance indemnification is the single largest unlock for enterprise open-source adoption."
+  },
+  {
+    "id": "mem_14",
+    "entity": "Palantir",
+    "event_type": "GO_TO_MARKET_ACCELERATION",
+    "title": "Palantir AIP Bootcamps convert 80% of enterprise attendees to production within 5 days",
+    "summary": "Hands-on operational deployment model crushing traditional 6-month enterprise RFPs and pilot purgatory.",
+    "category": "commercial",
+    "impact_score": 94,
+    "precedent_lesson": "Demonstrating working software against live production data in under 72 hours renders theoretical competitors obsolete."
+  },
+  {
+    "id": "mem_15",
+    "entity": "Cloudflare",
+    "event_type": "EDGE_COMPUTE_EXPANSION",
+    "title": "Cloudflare Workers AI activates global localized inference across 300+ edge cities",
+    "summary": "Guarantees data residency within national borders while keeping latency under 15 milliseconds for global enterprise users.",
+    "category": "infrastructure",
+    "impact_score": 89,
+    "precedent_lesson": "Edge locality solves both global performance bottlenecks and local data sovereignty laws simultaneously."
   }
 ]

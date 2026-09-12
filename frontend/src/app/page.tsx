@@ -34,6 +34,7 @@ import { NextGenHub } from "../components/NextGenHub";
 import { AnakinInspector } from "../components/AnakinInspector";
 import { SentinelDiffModal } from "../components/SentinelDiffModal";
 import { IntelligenceTicker } from "../components/IntelligenceTicker";
+import { ScenarioSimulatorControls } from "../components/ScenarioSimulatorControls";
 
 
 // Icons
@@ -108,6 +109,7 @@ export default function Dashboard() {
   const [simulatingSignalId, setSimulatingSignalId] = useState<string | null>(null);
   const [connectionInfo, setConnectionInfo] = useState<any>(null);
   const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
+  const [isWsConnected, setIsWsConnected] = useState<boolean>(false);
 
 
 
@@ -154,22 +156,63 @@ export default function Dashboard() {
   useEffect(() => {
     fetchAllData();
 
-    // Establish WebSocket real-time telemetry stream
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "ws://127.0.0.1:8008/api/ws/telemetry";
+    // Establish WebSocket real-time telemetry stream with dynamic port & auto-reconnect
+    const wsPort = process.env.NEXT_PUBLIC_WS_PORT || "8008";
+    const defaultWs = typeof window !== "undefined"
+      ? `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.hostname || "127.0.0.1"}:${wsPort}/api/ws/telemetry`
+      : `ws://127.0.0.1:${wsPort}/api/ws/telemetry`;
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || defaultWs;
+
     let ws: WebSocket | null = null;
-    try {
-      ws = new WebSocket(wsUrl);
-      ws.onmessage = (event) => {
-        try {
-          const packet = JSON.parse(event.data);
-          if (packet.type === "governor.updated" || packet.type === "demo.completed") {
-            fetchAllData();
-          }
-        } catch (e) {}
-      };
-    } catch (e) {}
+    let heartbeatInterval: any = null;
+    let reconnectTimeout: any = null;
+
+    const connectWs = () => {
+      try {
+        ws = new WebSocket(wsUrl);
+        ws.onopen = () => {
+          setIsWsConnected(true);
+          heartbeatInterval = setInterval(() => {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+              ws.send(JSON.stringify({ type: "ping" }));
+            }
+          }, 15000);
+        };
+
+        ws.onmessage = (event) => {
+          try {
+            const packet = JSON.parse(event.data);
+            if (
+              packet.type === "governor.updated" ||
+              packet.type === "demo.completed" ||
+              packet.type === "signal.detected" ||
+              packet.type === "world.updated"
+            ) {
+              fetchAllData();
+            }
+          } catch (e) {}
+        };
+
+        ws.onclose = () => {
+          setIsWsConnected(false);
+          if (heartbeatInterval) clearInterval(heartbeatInterval);
+          reconnectTimeout = setTimeout(connectWs, 3000);
+        };
+
+        ws.onerror = () => {
+          setIsWsConnected(false);
+          if (ws) ws.close();
+        };
+      } catch (e) {
+        setIsWsConnected(false);
+      }
+    };
+
+    connectWs();
 
     return () => {
+      if (heartbeatInterval) clearInterval(heartbeatInterval);
+      if (reconnectTimeout) clearTimeout(reconnectTimeout);
       if (ws) ws.close();
     };
   }, []);
@@ -245,6 +288,24 @@ export default function Dashboard() {
     } finally {
       setSimulatingSignalId(null);
     }
+  };
+
+  // Handle interactive RLHF slider changes in SIMULATIONS tab
+  const handleRLHFWeightsChange = (weights: { riskAversion: number; marginDefense: number; differentiation: number }) => {
+    setActiveSimulationScenarios((prev) => {
+      if (!prev || prev.length === 0) return prev;
+      return prev.map((sc) => {
+        let newScore = sc.score;
+        if (sc.scenario.includes("DIFFERENTIATE") || sc.scenario.includes("ASYMMETRIC")) {
+          newScore = Math.min(99, Math.max(70, Math.round(75 + (weights.differentiation * 0.25))));
+        } else if (sc.scenario.includes("MATCH") || sc.scenario.includes("DIRECT")) {
+          newScore = Math.min(85, Math.max(30, Math.round(50 + ((100 - weights.marginDefense) * 0.25) - (weights.riskAversion * 0.1))));
+        } else {
+          newScore = Math.min(60, Math.max(15, Math.round(30 + ((100 - weights.riskAversion) * 0.2))));
+        }
+        return { ...sc, score: newScore };
+      }).sort((a, b) => b.score - a.score).map((sc, i) => ({ ...sc, recommended: i === 0 }));
+    });
   };
 
   // Execute Chosen Strategy via Hands / Wire
@@ -407,18 +468,18 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
             >
               <span
                 className={`w-2 h-2 rounded-full ${
-                  connectionInfo?.authenticated ? "bg-hud-emerald animate-pulse" : "bg-hud-amber"
+                  isWsConnected ? "bg-hud-emerald animate-pulse" : "bg-hud-amber"
                 }`}
               />
               <span className="hidden sm:inline">
-                {connectionInfo?.authenticated ? `ANAKIN LIVE (${connectionInfo.latency_ms || 120}ms)` : "DEMO RELIABLE"}
+                {isWsConnected ? "LIVE TELEMETRY (8000)" : "CONNECTING..."}
               </span>
               <span className="sm:hidden">
-                {connectionInfo?.authenticated ? "LIVE" : "DEMO"}
+                {isWsConnected ? "SYNC" : "OFFLINE"}
               </span>
             </button>
 
-            {/* Audio Intelligence Briefing */}
+            {/* Audio Intelligence Briefing with Waveform */}
             <button
               onClick={handlePlayBriefing}
               className={`p-2 rounded-lg border text-xs font-mono transition-all flex items-center gap-1.5 ${
@@ -428,8 +489,17 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
               }`}
               title={isPlayingAudio ? "Stop Audio Briefing" : "Listen to Executive Voice Briefing"}
             >
-              {isPlayingAudio ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-              <span className="hidden md:inline">{isPlayingAudio ? "STOP AUDIO" : "BRIEFING"}</span>
+              {isPlayingAudio ? (
+                <div className="flex items-center gap-0.5 h-3.5 px-0.5">
+                  <span className="w-0.5 bg-hud-rose wave-bar-1 rounded-full" />
+                  <span className="w-0.5 bg-hud-rose wave-bar-2 rounded-full" />
+                  <span className="w-0.5 bg-hud-rose wave-bar-3 rounded-full" />
+                  <span className="w-0.5 bg-hud-rose wave-bar-4 rounded-full" />
+                </div>
+              ) : (
+                <Volume2 className="w-3.5 h-3.5" />
+              )}
+              <span className="hidden md:inline">{isPlayingAudio ? "AUDIO PLAYING" : "BRIEFING"}</span>
             </button>
 
             {/* Export Strategic Dossier */}
@@ -810,6 +880,9 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
                 Strategic Scenario Comparison & Risk Scoring
               </h2>
             </div>
+
+            {/* Interactive RLHF Sliders */}
+            <ScenarioSimulatorControls onWeightsChange={handleRLHFWeightsChange} />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {activeSimulationScenarios.length > 0 ? (

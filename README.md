@@ -227,11 +227,11 @@ ANAKIN_API_KEY=your_official_anakin_api_key_here
 # Install Python dependencies
 pip install -r backend/requirements.txt
 
-# Start backend server
-uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+# Start backend server (port 8008 by default to avoid port 8000 conflicts with local services)
+uvicorn backend.main:app --host 0.0.0.0 --port 8008 --reload
 ```
-API Documentation will be live at: `http://localhost:8000/docs`  
-Health check endpoint: `http://localhost:8000/health`
+API Documentation will be live at: `http://localhost:8008/docs`  
+Health check endpoint: `http://localhost:8008/health` (also accessible at `/api/health`)
 
 ### 3. Run Frontend (Next.js)
 ```bash

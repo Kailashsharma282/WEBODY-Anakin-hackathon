@@ -2,18 +2,16 @@
 const nextConfig = {
   reactStrictMode: true,
   async rewrites() {
+    const backendPort = process.env.BACKEND_PORT || process.env.PORT || '8008';
+    const targetUrl = process.env.BACKEND_URL || `http://127.0.0.1:${backendPort}`;
     return [
       {
         source: '/api/:path*',
-        destination: process.env.BACKEND_URL 
-          ? `${process.env.BACKEND_URL}/api/:path*` 
-          : 'http://127.0.0.1:8008/api/:path*',
+        destination: `${targetUrl}/api/:path*`,
       },
       {
         source: '/health',
-        destination: process.env.BACKEND_URL 
-          ? `${process.env.BACKEND_URL}/health` 
-          : 'http://127.0.0.1:8008/health',
+        destination: `${targetUrl}/health`,
       },
     ];
   },

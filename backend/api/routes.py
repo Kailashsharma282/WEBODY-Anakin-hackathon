@@ -40,6 +40,7 @@ from backend.services.vector_memory_service import vector_memory_service
 from backend.services.adversarial_oracle_service import adversarial_oracle_service
 from backend.services.cross_llm_radar_service import cross_llm_radar_service
 from backend.services.rlhf_service import rlhf_service
+from backend.services.security_service import ssrf_guard, mask_secret
 from backend.api.websocket import manager
 
 logger = logging.getLogger("webody.api")
@@ -82,7 +83,9 @@ async def map_domain(req: MapDomainRequest, db: AsyncSession = Depends(get_db)):
     workflow_id = str(uuid.uuid4())[:8]
     log_event("mapping.started", req.domain, workflow_id, 0, "STARTED")
 
-    topology = await mapping_service.map_target_domain(req.domain, max_pages=req.max_pages)
+    # SSRF Guard domain validation
+    validated_domain = ssrf_guard.validate_domain(req.domain)
+    topology = await mapping_service.map_target_domain(validated_domain, max_pages=req.max_pages)
 
     # Sync entity into world model
     entity = await world_model_service.get_or_create_entity(
@@ -90,7 +93,8 @@ async def map_domain(req: MapDomainRequest, db: AsyncSession = Depends(get_db)):
     )
 
     duration = int((time.time() - start) * 1000)
-    log_event("mapping.completed", req.domain, workflow_id, duration, "COMPLETED")
+    log_event("mapping.completed", validated_domain, workflow_id, duration, "COMPLETED")
+    await manager.broadcast("world.updated", {"action": "domain_mapped", "domain": validated_domain})
     return topology
 
 # 3. ENTITIES (World Model)
@@ -140,6 +144,13 @@ async def inject_demo_signal(db: AsyncSession = Depends(get_db)):
     )
     sig = await signal_service.create_signal(db, sig_in)
     log_event("signal.detected", sig.entity, sig.id, 0, "DETECTED")
+    await manager.broadcast("signal.detected", {
+        "id": sig.id,
+        "entity": sig.entity,
+        "title": sig.title,
+        "severity": sig.severity,
+        "importance": sig.importance
+    })
     return sig
 
 # 5. INVESTIGATIONS ("WHY SHOULD I CARE?" / Cortex)
@@ -677,12 +688,16 @@ async def run_live_inspect(payload: Dict[str, Any], db: AsyncSession = Depends(g
     target = payload.get("target", "https://openai.com").strip()
     start_time = time.time()
 
+    # SSRF Protection: Validate target before initiating live network request
+    if action == "scrape":
+        target = ssrf_guard.validate_url(target)
+    elif action == "map":
+        target = ssrf_guard.validate_domain(target)
+
     result_data: Dict[str, Any] = {}
     try:
         if action == "map":
-            # Strip scheme if present
-            clean_domain = target.replace("https://", "").replace("http://", "").split("/")[0]
-            result_data = await mapping_service.map_domain(clean_domain)
+            result_data = await mapping_service.map_domain(target)
         elif action == "scrape":
             result_data = await scrape_service.scrape_page(target)
         elif action == "search":
