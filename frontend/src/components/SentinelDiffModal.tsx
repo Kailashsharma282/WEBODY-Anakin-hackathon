@@ -27,24 +27,24 @@ interface DiffCase {
 
 const SAMPLE_DIFFS: DiffCase[] = [
   {
-    id: "diff-comp-x",
-    target: "Competitor X Enterprise Pricing",
-    url: "https://competitor-x.ai/pricing",
-    detectedAt: "10 mins ago (via Sentinel Scraper)",
+    id: "diff-openai-pricing",
+    target: "OpenAI API Platform Pricing & Rate Limits",
+    url: "https://openai.com/api/pricing",
+    detectedAt: "10 mins ago (via Sentinel Monitor)",
     category: "PRICING & PACKAGING",
     severity: "critical",
-    deltaSummary: "-22% Price Slash & Free AI Governance Bundling",
+    deltaSummary: "-50% Price Slash on Flagship Inference & Batch API Expansion",
     lines: [
-      { type: "ctx", leftNum: 14, rightNum: 14, leftText: "### Tier Comparison Matrix", rightText: "### Tier Comparison Matrix" },
-      { type: "ctx", leftNum: 15, rightNum: 15, leftText: "#### Team Plan: $49/seat/mo", rightText: "#### Team Plan: $49/seat/mo" },
-      { type: "del", leftNum: 16, rightNum: undefined, leftText: "- Enterprise Base: $10,000 / month (annual commit)", rightText: "" },
-      { type: "add", leftNum: undefined, rightNum: 16, leftText: "", rightText: "+ Enterprise Base: $7,800 / month (annual commit) [-22% PRICE DROP]" },
-      { type: "del", leftNum: 17, rightNum: undefined, leftText: "- Enterprise AI Governance Addon: $2,500 / month", rightText: "" },
-      { type: "add", leftNum: undefined, rightNum: 17, leftText: "", rightText: "+ Enterprise AI Governance Suite: INCLUDED FREE FOR ALL ANNUAL DEALS" },
-      { type: "ctx", leftNum: 18, rightNum: 18, leftText: "- Dedicated VPC Deployment: Yes", rightText: "- Dedicated VPC Deployment: Yes" },
-      { type: "del", leftNum: 19, rightNum: undefined, leftText: "- SLA Guarantee: 99.9% uptime credit", rightText: "" },
-      { type: "add", leftNum: undefined, rightNum: 19, leftText: "", rightText: "+ SLA Guarantee: 99.99% high-availability active-active failover" },
-      { type: "ctx", leftNum: 20, rightNum: 20, leftText: "- Support: 24/7 Dedicated Slack Channel", rightText: "- Support: 24/7 Dedicated Slack Channel" }
+      { type: "ctx", leftNum: 14, rightNum: 14, leftText: "### Frontier Model Inference Tiers", rightText: "### Frontier Model Inference Tiers" },
+      { type: "ctx", leftNum: 15, rightNum: 15, leftText: "#### Developer Tier: Standard Latency SLA", rightText: "#### Developer Tier: Standard Latency SLA" },
+      { type: "del", leftNum: 16, rightNum: undefined, leftText: "- Standard Input: $5.00 / 1M tokens", rightText: "" },
+      { type: "add", leftNum: undefined, rightNum: 16, leftText: "", rightText: "+ Standard Input: $2.50 / 1M tokens [-50% PRICE DROP]" },
+      { type: "del", leftNum: 17, rightNum: undefined, leftText: "- Batch API Window: 24h, 25% discount", rightText: "" },
+      { type: "add", leftNum: undefined, rightNum: 17, leftText: "", rightText: "+ Batch API Window: 24h, 50% discount [EXPANDED CAPACITY]" },
+      { type: "ctx", leftNum: 18, rightNum: 18, leftText: "- Dedicated Throughput Instances: Yes", rightText: "- Dedicated Throughput Instances: Yes" },
+      { type: "del", leftNum: 19, rightNum: undefined, leftText: "- Availability SLA: 99.9% uptime credit", rightText: "" },
+      { type: "add", leftNum: undefined, rightNum: 19, leftText: "", rightText: "+ Availability SLA: 99.99% high-availability multi-region failover" },
+      { type: "ctx", leftNum: 20, rightNum: 20, leftText: "- Support: 24/7 Enterprise Dedicated Channel", rightText: "- Support: 24/7 Enterprise Dedicated Channel" }
     ]
   },
   {

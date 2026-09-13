@@ -24,7 +24,7 @@ export function AnakinInspector() {
     map: ["openai.com", "stripe.com", "anthropic.com"],
     search: [
       "Enterprise AI price war trends 2026",
-      "Competitor X enterprise pricing reduction analysis",
+      "OpenAI vs Anthropic frontier reasoning model pricing",
       "Cloud hyperscaler GPU cost changes"
     ],
     wire: ["github", "slack", "webhook", "all"]

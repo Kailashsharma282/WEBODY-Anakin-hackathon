@@ -45,3 +45,6 @@ yarn-error.log*
 .DS_Store
 *.pem
 Thumbs.db
+
+# Scratch audio cache & temp artifacts
+scratch/

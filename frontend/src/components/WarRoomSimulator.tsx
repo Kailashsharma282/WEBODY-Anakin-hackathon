@@ -44,8 +44,8 @@ interface WarRoomResult {
 
 export const WarRoomSimulator: React.FC = () => {
   const [selectedScenario, setSelectedScenario] = useState<string>("Differentiate with Governance Bundle");
-  const [brandName, setBrandName] = useState<string>("Acme AI");
-  const [competitorName, setCompetitorName] = useState<string>("Competitor X");
+  const [brandName, setBrandName] = useState<string>("Anthropic");
+  const [competitorName, setCompetitorName] = useState<string>("OpenAI");
   const [diffPriority, setDiffPriority] = useState<number>(85);
   const [marginPriority, setMarginPriority] = useState<number>(50);
   const [riskAversion, setRiskAversion] = useState<number>(45);

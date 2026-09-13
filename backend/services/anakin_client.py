@@ -175,6 +175,27 @@ class AnakinClient:
         payload = {"url": url}
         return await self._request("POST", "/v1/map", payload=payload)
 
+    async def get_map_status(self, job_id: str) -> Dict[str, Any]:
+        """
+        Polls domain map job status.
+        """
+        return await self._request("GET", f"/v1/map/{job_id}")
+
+    async def poll_map_job(self, job_id: str, timeout_sec: int = 15, poll_interval_sec: float = 1.0) -> Dict[str, Any]:
+        """
+        Polls async Map job until completion or timeout, returning discovered links.
+        """
+        start_time = time.time()
+        while time.time() - start_time < timeout_sec:
+            res = await self.get_map_status(job_id)
+            status = res.get("status", "").lower()
+            if status in ("completed", "success", "done") or (isinstance(res.get("links"), list) and len(res.get("links", [])) > 0):
+                return res
+            elif status in ("failed", "error"):
+                raise AnakinAPIError(f"Map job failed: {res.get('error', 'Unknown error')}", response_body=res)
+            await asyncio.sleep(poll_interval_sec)
+        return await self.get_map_status(job_id)
+
     # ================= 2. CRAWL API =================
     async def start_crawl(self, url: str, max_depth: int = 2, max_pages: int = 20) -> Dict[str, Any]:
         """
@@ -228,6 +249,27 @@ class AnakinClient:
             "max_steps": max_steps
         }
         return await self._request("POST", "/v1/agentic-search", payload=payload)
+
+    async def get_agentic_search_status(self, job_id: str) -> Dict[str, Any]:
+        """
+        Polls agentic search job status.
+        """
+        return await self._request("GET", f"/v1/agentic-search/{job_id}")
+
+    async def poll_agentic_search(self, job_id: str, timeout_sec: int = 25, poll_interval_sec: float = 1.5) -> Dict[str, Any]:
+        """
+        Polls async Agentic Search job until completion or timeout.
+        """
+        start_time = time.time()
+        while time.time() - start_time < timeout_sec:
+            res = await self.get_agentic_search_status(job_id)
+            status = res.get("status", "").lower()
+            if status in ("completed", "success", "done"):
+                return res
+            elif status in ("failed", "error"):
+                raise AnakinAPIError(f"Agentic search failed: {res.get('error', 'Unknown error')}", response_body=res)
+            await asyncio.sleep(poll_interval_sec)
+        return await self.get_agentic_search_status(job_id)
 
 
     # ================= 6. WEBSITE MONITORING =================
@@ -434,7 +476,7 @@ class AnakinClient:
         try:
             async with httpx.AsyncClient(timeout=10.0) as client:
                 res = await client.get(
-                    f"{self.base_url}/v1/wire/catalogs",
+                    f"{self.base_url}/v1/monitors",
                     headers=self._get_headers()
                 )
                 latency = int((time.time() - start_time) * 1000)

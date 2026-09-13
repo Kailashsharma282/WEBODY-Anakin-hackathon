@@ -40,10 +40,10 @@ const WIRE_TOOLS: WireTool[] = [
       labels: { type: "array", description: "Labels e.g. ['strategy', 'priority-p0']" }
     },
     default_payload: {
-      repo: "acme-ai/enterprise-platform",
-      title: "STRATEGIC COUNTER: Bundle SOC2 & EU AI Act Governance Suite",
-      body: "## Context\nCompetitor X executed -22% price reduction. Counter with enterprise governance bundle.\n\n## Action Items\n- Attach compliance templates\n- Update enterprise landing matrix\n- Deploy sales enablement battlecards",
-      labels: ["priority-p0", "anakin-wire", "hackathon-demo"]
+      repo: "anthropic/enterprise-intelligence",
+      title: "STRATEGIC COUNTER: Accelerate EU AI Act & Guardrails Enterprise Suite",
+      body: "## Context\nOpenAI and DeepSeek initiated aggressive API discounting. Counter with enterprise safety and dedicated compliance residency.\n\n## Action Items\n- Deploy automated Article 52 compliance export\n- Update enterprise pricing & prompt caching ROI matrix\n- Distribute sales battlecard to enterprise account execs",
+      labels: ["priority-p0", "anakin-wire", "verified-live"]
     }
   },
   {
@@ -58,7 +58,7 @@ const WIRE_TOOLS: WireTool[] = [
     },
     default_payload: {
       channel: "#executive-intelligence-war-room",
-      message: "🚨 *WEBODY INTELLIGENCE ALERT*: Competitor X pricing cut detected (-22%). Oracle Bayes Model projects 84% platform launch probability within 30 days. Simulator recommends Strategy C (Governance Bundle) with 94/100 net score. Countermeasure dispatched via Anakin Wire."
+      message: "🚨 *WEBODY INTELLIGENCE ALERT*: OpenAI frontier pricing adjustments & prompt caching discount detected. Oracle Bayes Model projects 84% probability of expanded enterprise bundle within 30 days. War Room Simulator recommends Strategy C (Enterprise Guardrails & Caching) with 94/100 net score. Countermeasure dispatched via Anakin Wire."
     }
   },
   {
@@ -106,7 +106,7 @@ const WIRE_TOOLS: WireTool[] = [
       payload: { type: "object", description: "Structured execution data" }
     },
     default_payload: {
-      target_url: "https://bi.acme.ai/api/v1/strategic-events",
+      target_url: "https://webhook.enterprise.internal/api/v1/strategic-events",
       payload: {
         event: "COMPETITOR_PRICING_DISRUPTION",
         status: "COUNTERMEASURE_ENGAGED",

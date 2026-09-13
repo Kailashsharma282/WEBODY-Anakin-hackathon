@@ -13,10 +13,20 @@ import {
   Settings
 } from "./types";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
+const getBaseUrl = (): string => {
+  if (typeof process !== "undefined" && process.env && process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  if (typeof window !== "undefined") {
+    const port = (process.env.NEXT_PUBLIC_API_PORT as string) || "8008";
+    return `${window.location.protocol}//${window.location.hostname || "127.0.0.1"}:${port}`;
+  }
+  return "http://127.0.0.1:8008";
+};
 
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const url = `${BASE_URL}${endpoint}`;
+  const baseUrl = getBaseUrl();
+  const url = `${baseUrl}${endpoint}`;
   try {
     const res = await fetch(url, {
       ...options,
@@ -166,7 +176,7 @@ export const api = {
     }),
   searchMemory: (query: string) =>
     request<any>(`/api/memory/search?q=${encodeURIComponent(query)}`),
-  getCrossLLMRadar: (brand = "Acme AI", competitor = "Competitor X") =>
+  getCrossLLMRadar: (brand = "Anthropic", competitor = "OpenAI") =>
     request<any>(`/api/radar/cross-llm?brand=${encodeURIComponent(brand)}&competitor=${encodeURIComponent(competitor)}`),
   recordRLHFDecision: (payload: {
     chosen_scenario: string;

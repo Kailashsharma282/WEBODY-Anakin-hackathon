@@ -20,13 +20,13 @@ def generate_updated_narration():
         
         "Now, let us trigger our live demonstration by clicking RUN THE FUTURE. "
         
-        "Phase one: OBSERVE. Sentinel surveillance detects Competitor X suddenly slashing enterprise pricing by 22 percent and bundling governance features, verified with SHA-256 DOM fingerprinting. "
+        "Phase one: OBSERVE. Sentinel surveillance detects OpenAI slashing API pricing by 50 percent on frontier models and introducing prompt caching discounts, verified with SHA-256 DOM fingerprinting on openai.com. "
         
-        "Phase two: UNDERSTAND. Cortex launches an investigation using Anakin Agentic Search, extracting three independent verified citations: the official pricing portal diff, a 40 percent surge in security and compliance job openings, and EU AI Act enforcement deadlines. "
+        "Phase two: UNDERSTAND. Cortex launches an investigation using Anakin Agentic Search, extracting three independent verified citations: the official OpenAI pricing matrix diff, enterprise prompt caching adoption rates, and EU AI Act Article 52 compliance enforcement deadlines. "
         
-        "Phase three: PREDICT. Oracle activates Bayesian forecasting, calibrated with historical precedents from Vector Memory and domain volatility from our Adaptive Governor, projecting an 84 percent probability of a major enterprise platform launch within thirty days. "
+        "Phase three: PREDICT. Oracle activates Bayesian forecasting, calibrated with historical precedents from Vector Memory and domain volatility from our Adaptive Governor, projecting an 88 percent probability that enterprise buyers will accelerate multi-provider LLM migration within 45 days. "
         
-        "Phase four: SIMULATE. The Simulator evaluates strategic counter-pathways. When operators tune our interactive RLHF Strategy Sliders — adjusting Risk Aversion, Margin Defense, or Differentiation Priority — our reinforcement learning engine dynamically re-ranks the counter-measures in real-time. "
+        "Phase four: SIMULATE. The Simulator evaluates strategic counter-pathways for Anthropic. When operators tune our interactive RLHF Strategy Sliders — adjusting Risk Aversion, Margin Defense, or Differentiation Priority — our reinforcement learning engine dynamically re-ranks the counter-measures in real-time, recommending high-assurance hybrid reasoning and compliance residency. "
         
         "Next, we enter our breakthrough innovation: the Multi-Turn Adversarial War Room. "
         "Most agents evaluate strategies in a vacuum, but strategy is a game of chess. "

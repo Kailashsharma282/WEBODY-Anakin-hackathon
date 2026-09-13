@@ -79,23 +79,23 @@ class VectorMemoryService:
         memories = [
             (
                 "mem-001",
-                "Competitor X previously slashed basic tier pricing by 15% in Q4 2025 ahead of their Series B announcement.",
-                {"entity": "Competitor X", "category": "PRICING", "quarter": "Q4-2025"}
+                "DeepSeek AI slashed V3 API pricing by over 70% in late 2024, triggering aggressive multi-provider frontier LLM price competition.",
+                {"entity": "DeepSeek", "category": "PRICING", "quarter": "Q4-2024"}
             ),
             (
                 "mem-002",
-                "Competitor X bundled compliance audit tools for EU GDPR mandates before expanding enterprise sales team.",
-                {"entity": "Competitor X", "category": "GOVERNANCE", "quarter": "Q1-2026"}
+                "OpenAI bundled enterprise data residency and compliance audit controls into ChatGPT Enterprise ahead of the EU AI Act enforcement.",
+                {"entity": "OpenAI", "category": "GOVERNANCE", "quarter": "Q1-2025"}
             ),
             (
                 "mem-003",
-                "AWS launched Bedrock guardrails compliance bundle at zero extra cost, forcing standalone compliance vendors to differentiate.",
-                {"entity": "AWS", "category": "TECHNOLOGY", "quarter": "Q2-2026"}
+                "AWS Bedrock launched automated guardrails and compliance evaluation at zero extra charge, establishing baseline enterprise standards.",
+                {"entity": "AWS Bedrock", "category": "TECHNOLOGY", "quarter": "Q2-2025"}
             ),
             (
                 "mem-004",
-                "Acme AI enterprise customers renew with 94% retention when offered dedicated SOC2 Type II automated reporting.",
-                {"entity": "Acme AI", "category": "CUSTOMERS", "quarter": "Q2-2026"}
+                "Anthropic enterprise customers reported 94% retention when deploying Claude with dedicated prompt caching and automated security boundaries.",
+                {"entity": "Anthropic", "category": "CUSTOMERS", "quarter": "Q3-2025"}
             )
         ]
         for mid, txt, meta in memories:

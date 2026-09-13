@@ -53,12 +53,12 @@ class TimelineService:
         """
         now = utc_now()
         historical_events = [
-            ("Jun 03 Hiring spike detected", "Sudden surge in security engineering and policy compliance job postings.", "Anakin Web Monitor", "hiring_changes", 85, "medium", now - timedelta(days=53)),
-            ("Jun 17 New API documentation", "Pre-release endpoints /v2/compliance and /v2/guardrails discovered in sitemap.", "Anakin Map", "documentation_changes", 90, "medium", now - timedelta(days=39)),
-            ("Jul 02 Enterprise landing page changed", "Hero headline updated to emphasize 'Enterprise AI Governance & Auditability'.", "Anakin URL Scraper", "positioning_changes", 92, "high", now - timedelta(days=24)),
-            ("Jul 14 Pricing changed", "Base enterprise pricing reduced by 22% with included compliance suite.", "Anakin Monitor", "price_changes", 98, "critical", now - timedelta(days=12)),
-            ("Jul 19 Prediction generated", "Oracle forecasted broader enterprise strategy expansion within 30 days.", "WEBODY Oracle", "prediction_generated", 88, "high", now - timedelta(days=7)),
-            ("Jul 25 Launch detected", "Formal rollout of automated SOC2 audit generator.", "Anakin Search", "product_changes", 95, "critical", now - timedelta(days=1))
+            ("Developer API Pricing Drop (-50%)", "OpenAI reduced token inference costs by 50% across flagship developer endpoints.", "Anakin Web Monitor", "price_changes", 96, "critical", now - timedelta(days=53)),
+            ("o3-mini & Frontier Reasoning Deployment", "Launch of high-efficiency reasoning models with low-latency tool-calling integration.", "Anakin Map", "feature_additions", 94, "high", now - timedelta(days=39)),
+            ("Enterprise Workspace Governance Update", "Updated enterprise administrative controls with cryptographic provenance logging.", "Anakin URL Scraper", "positioning_changes", 90, "medium", now - timedelta(days=24)),
+            ("EU AI Act Conformity Framework Published", "Mandatory conformity assessments and risk management reporting published for general-purpose AI.", "EU Regulatory Registry", "policy_changes", 95, "critical", now - timedelta(days=14)),
+            ("Cloud Hyperscaler Compute Optimization", "AWS Bedrock and Azure announce accelerated reserved capacity instances for frontier workloads.", "Anakin Search", "infrastructure_expansion", 88, "medium", now - timedelta(days=7)),
+            ("Real-Time Multi-Agent Orchestration APIs", "Rollout of asynchronous agent coordination endpoints with persistent memory guarantees.", "Anakin Search", "product_changes", 92, "high", now - timedelta(days=2))
         ]
 
         for title, desc, source, ev_type, conf, impact, timestamp in historical_events:

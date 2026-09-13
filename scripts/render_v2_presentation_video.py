@@ -114,14 +114,14 @@ def main():
             "img": base_dir / "v2_04_run_the_future_trail_1789225922239.png",
             "badge": "PHASE 1 & 2: OBSERVE & UNDERSTAND",
             "title": "Sentinel Surveillance & Cortex Multi-Citation Investigation",
-            "subtitle": "-22% pricing slash captured with SHA-256 fingerprint; 3 verified citations extracted via Anakin Agentic Search",
+            "subtitle": "OpenAI -50% API pricing cut captured with SHA-256 fingerprint; 3 verified citations extracted via Anakin Agentic Search",
             "duration": 34.0
         },
         {
             "img": base_dir / "04_rlhf_simulations_1789224134451.png",
             "badge": "PHASE 3 & 4: PREDICT & SIMULATE",
             "title": "Oracle Bayesian Forecasting & Monte Carlo RLHF Strategy Sliders",
-            "subtitle": "84% platform launch probability; executive RLHF sliders re-rank counter-pathways in real-time",
+            "subtitle": "88% multi-model migration probability; executive RLHF sliders re-rank counter-pathways in real-time",
             "duration": 35.0
         },
         {

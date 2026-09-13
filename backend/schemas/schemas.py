@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Union
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 
@@ -80,7 +80,7 @@ class SignalCreate(BaseModel):
     content: Optional[str] = None
     importance: int = Field(default=50, ge=0, le=100)
     severity: str = "medium"
-    confidence: int = Field(default=80, ge=0, le=100)
+    confidence: Union[int, float] = Field(default=80)
     actionability: str = "high"
     is_demo: bool = False
     entity_id: Optional[str] = None
@@ -99,7 +99,7 @@ class SignalResponse(BaseModel):
     content: Optional[str] = None
     importance: int
     severity: str
-    confidence: int
+    confidence: Union[int, float]
     actionability: str
     is_demo: bool
     entity_id: Optional[str] = None

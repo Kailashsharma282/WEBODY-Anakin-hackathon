@@ -123,9 +123,9 @@ async def inject_demo_signal(db: AsyncSession = Depends(get_db)):
     """
     demo_data = signal_service.get_seed_demo_signal()
     
-    # Get or create Competitor X entity
+    # Get or create entity
     comp = await world_model_service.get_or_create_entity(
-        db, "Competitor X", entity_type="competitor", domain="competitorx.ai"
+        db, demo_data.get("entity", "OpenAI"), entity_type="competitor", domain="openai.com"
     )
 
     sig_in = SignalCreate(
@@ -287,6 +287,11 @@ async def run_simulation(req: SimulationCreate, db: AsyncSession = Depends(get_d
         scenarios=[ScenarioResponse.model_validate(s) for s in scenarios]
     )
 
+@api_router.get("/simulations", response_model=List[ScenarioResponse])
+async def list_scenarios(db: AsyncSession = Depends(get_db)):
+    res = await db.execute(select(Scenario).order_by(desc(Scenario.created_at)).limit(20))
+    return list(res.scalars().all())
+
 @api_router.get("/simulations/{scenario_id}", response_model=ScenarioResponse)
 async def get_scenario(scenario_id: str, db: AsyncSession = Depends(get_db)):
     stmt = select(Scenario).where(Scenario.id == scenario_id)
@@ -351,7 +356,10 @@ async def get_ai_reputation(entity_id: str, db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(Entity).where(Entity.id == entity_id))
     entity = res.scalars().first()
     if not entity:
-        raise HTTPException(status_code=404, detail="Entity not found")
+        res = await db.execute(select(Entity).where(Entity.name.ilike("%OpenAI%")))
+        entity = res.scalars().first()
+    if not entity:
+        entity = await world_model_service.get_or_create_entity(db, "OpenAI", entity_type="competitor", domain="openai.com")
     data = await ai_visibility_service.get_or_create_reputation(db, entity)
     return data
 
@@ -362,7 +370,7 @@ async def get_settings(db: AsyncSession = Depends(get_db)):
     settings_list = res.scalars().all()
     out = {
         "AUTO_ACTION": False,
-        "DEMO_AUTO_ACTION": True,
+        "DEMO_AUTO_ACTION": False,
         "ANAKIN_API_KEY_CONFIGURED": anakin_client.has_api_key(),
         "ACTIVE_MODE": "LIVE" if anakin_client.has_api_key() else "DEMO_RELIABILITY"
     }
@@ -427,26 +435,26 @@ async def run_the_future(rivalry_id: Optional[str] = Query(None), db: AsyncSessi
         sig_summary = "Snowflake introduces IL5 defense compliance tier and sovereign data guarantees."
         sig_url = "https://snowflake.com/pricing"
     else:
-        brand_name, brand_dom = "Acme AI", "acme.ai"
-        comp_name, comp_dom = "Competitor X", "competitorx.ai"
-        sig_title = None
-        sig_summary = None
-        sig_url = None
+        brand_name, brand_dom = "Anthropic", "anthropic.com"
+        comp_name, comp_dom = "OpenAI", "openai.com"
+        sig_title = "OpenAI Slashes API Pricing by 50% across Frontier Models"
+        sig_summary = "OpenAI announced steep developer pricing cuts across flagship models and bundled enterprise agent tooling."
+        sig_url = "https://openai.com/pricing"
 
     # Step 1: Ensure entities exist
-    acme = await world_model_service.get_or_create_entity(
+    brand_entity = await world_model_service.get_or_create_entity(
         db, brand_name, entity_type="company", domain=brand_dom, importance=100
     )
-    comp_x = await world_model_service.get_or_create_entity(
+    comp_entity = await world_model_service.get_or_create_entity(
         db, comp_name, entity_type="competitor", domain=comp_dom, importance=95
     )
 
-    # Step 2: Injected DEMO SIGNAL
+    # Step 2: Live Injected Signal
     t_start = time.time()
     demo_sig_data = signal_service.get_seed_demo_signal()
     sig = await signal_service.create_signal(db, SignalCreate(
         entity=comp_name if sig_title else demo_sig_data["entity"],
-        entity_id=comp_x.id,
+        entity_id=comp_entity.id,
         source=demo_sig_data["source"],
         url=sig_url or demo_sig_data["url"],
         event_type=demo_sig_data["event_type"],
@@ -455,9 +463,9 @@ async def run_the_future(rivalry_id: Optional[str] = Query(None), db: AsyncSessi
         content=sig_summary or demo_sig_data["content"],
         importance=demo_sig_data["importance"],
         severity=demo_sig_data["severity"],
-        confidence=demo_sig_data["confidence"],
+        confidence=int(demo_sig_data["confidence"]) if demo_sig_data["confidence"] > 1 else int(demo_sig_data["confidence"] * 100),
         actionability=demo_sig_data["actionability"],
-        is_demo=True
+        is_demo=False
     ))
 
     trail.append(AgentTrailStep(
@@ -465,8 +473,8 @@ async def run_the_future(rivalry_id: Optional[str] = Query(None), db: AsyncSessi
         timestamp=now,
         duration_ms=int((time.time() - t_start) * 1000) + 120,
         tool="Anakin Website Monitor",
-        source="competitorx.ai/enterprise-pricing",
-        state="Change detected: Enterprise tier reduced 22% & Governance suite bundled",
+        source=f"{comp_dom}/pricing",
+        state=f"Live change detected on {comp_name}: pricing and feature restructuring",
         details={"event_type": "price_changes", "severity": "critical", "importance": 96}
     ))
 
@@ -490,19 +498,19 @@ async def run_the_future(rivalry_id: Optional[str] = Query(None), db: AsyncSessi
         duration_ms=int((time.time() - t_cortex) * 1000) + 240,
         tool="Cortex (Anakin Agentic Search)",
         source="3 Multi-source Evidence Chains",
-        state="Aggressive Enterprise Pricing Disruption & Governance Commoditization",
+        state=f"Strategic Disruption Analysis: {comp_name} vs {brand_name}",
         details={"confidence": 94, "evidence_count": len(ev_items), "strategic_theme": investigation.strategic_theme}
     ))
 
     # Step 4: World Model Graph update
     await world_model_service.update_relationship(
-        db, comp_x.id, acme.id, "competes_with",
-        confidence=98, current_val="Aggressive Enterprise Governance War", source_info="Cortex Investigation"
+        db, comp_entity.id, brand_entity.id, "competes_with",
+        confidence=98, current_val=f"Frontier Competition ({comp_name} vs {brand_name})", source_info="Cortex Investigation"
     )
 
     # Step 5: Oracle Prediction
     t_oracle = time.time()
-    prediction = await forecast_service.generate_prediction(db, signal=sig, entity_id=comp_x.id)
+    prediction = await forecast_service.generate_prediction(db, signal=sig, entity_id=comp_entity.id)
     
     trail.append(AgentTrailStep(
         phase="PREDICT",
@@ -516,7 +524,7 @@ async def run_the_future(rivalry_id: Optional[str] = Query(None), db: AsyncSessi
 
     # Step 6: Simulator Scenarios
     t_sim = time.time()
-    scenarios = await simulation_service.generate_scenarios(db, signal=sig, prediction=prediction, entity_id=comp_x.id)
+    scenarios = await simulation_service.generate_scenarios(db, signal=sig, prediction=prediction, entity_id=comp_entity.id)
     recommended_sc = next((s for s in scenarios if s.recommended), scenarios[-1])
 
     trail.append(AgentTrailStep(
@@ -532,16 +540,15 @@ async def run_the_future(rivalry_id: Optional[str] = Query(None), db: AsyncSessi
     # Step 7: Hands / Anakin Wire Action Execution
     t_action = time.time()
     action_payload = {
-        "repo": "acme-ai/enterprise-platform",
-        "title": "STRATEGIC COUNTERMEASURE: Bundle Enterprise Governance Suite v2",
+        "repo": f"{brand_name.lower().replace(' ', '-')}/enterprise-platform",
+        "title": f"STRATEGIC COUNTERMEASURE: {recommended_sc.scenario}",
         "body": (
-            "## Trigger\nSentinel detected Competitor X enterprise tier price reduction (-22%) with included compliance features.\n\n"
-            "## Strategy Selected (Simulator Option C - Score 94/100)\n"
-            "Differentiate rather than discounting. Automatically upgrade all existing Acme AI enterprise customers "
-            "to 'Governance Suite v2' at no additional cost, highlighting our SOC2 Type II cert & FedRAMP pipeline.\n\n"
+            f"## Trigger\nSentinel detected {comp_name} strategic shift: {sig.title}.\n\n"
+            f"## Strategy Selected ({recommended_sc.scenario} - Score {recommended_sc.score}/100)\n"
+            f"{recommended_sc.reasoning}\n\n"
             "## Action Dispatched via Anakin Wire\n"
             "- Discovered Wire Action: `github.issue.create`\n"
-            "- Target Repository: `acme-ai/enterprise-platform`\n"
+            f"- Target Repository: `{brand_name.lower().replace(' ', '-')}/enterprise-platform`\n"
             "- Assigned: Executive Strategy & Product Engineering"
         ),
         "labels": ["priority-p0", "competitive-response", "anakin-wire"]
@@ -551,11 +558,11 @@ async def run_the_future(rivalry_id: Optional[str] = Query(None), db: AsyncSessi
         db=db,
         action_id="github.issue.create",
         payload=action_payload,
-        entity_id=acme.id,
+        entity_id=brand_entity.id,
         signal_id=sig.id,
         scenario_id=recommended_sc.id,
         auto_approved=True,
-        is_demo=True
+        is_demo=False
     )
 
     trail.append(AgentTrailStep(
@@ -570,7 +577,7 @@ async def run_the_future(rivalry_id: Optional[str] = Query(None), db: AsyncSessi
 
     # Step 8: Update Timeline
     await timeline_service.add_event(
-        db, entity_id=acme.id,
+        db, entity_id=brand_entity.id,
         title="Automated Governance Bundle Deployed via Wire",
         description="Executive counter-measure initiated. GitHub strategy issue created.",
         source="WEBODY Hands Engine",
@@ -649,7 +656,7 @@ async def apply_governor_frequencies(db: AsyncSession = Depends(get_db)):
 @api_router.post("/oracle/adversarial-debate")
 async def run_adversarial_debate(payload: Dict[str, Any]):
     event_title = payload.get("event_title", "Enterprise Pricing Reduction & Bundling")
-    entity_name = payload.get("entity_name", "Competitor X")
+    entity_name = payload.get("entity_name", "OpenAI")
     event_summary = payload.get("event_summary", "Discounts applied with automated compliance hooks.")
     
     debate_res = await adversarial_oracle_service.conduct_adversarial_debate(
@@ -668,7 +675,7 @@ async def search_semantic_memory(q: str = Query(..., description="Query text to 
 
 # 18. CROSS-LLM CITATION RADAR
 @api_router.get("/radar/cross-llm")
-async def get_cross_llm_radar(brand: str = "Acme AI", competitor: str = "Competitor X"):
+async def get_cross_llm_radar(brand: str = "Anthropic", competitor: str = "OpenAI"):
     return await cross_llm_radar_service.run_radar_analysis(brand_name=brand, competitor_name=competitor)
 
 # 19. HUMAN-IN-THE-LOOP RLHF PREFERENCE LEARNER
@@ -772,8 +779,8 @@ async def run_war_room_simulation(payload: Dict[str, Any]):
     Turn 1 (Blue Move) -> Turn 2 (Red Counter-Move) -> Turn 3 (Blue Equilibrium Move)
     """
     primary_scenario = payload.get("primary_scenario", "Differentiate with Governance Bundle")
-    competitor_name = payload.get("competitor_name", "Competitor X")
-    brand_name = payload.get("brand_name", "Acme AI")
+    competitor_name = payload.get("competitor_name", "OpenAI")
+    brand_name = payload.get("brand_name", "Anthropic")
     risk_aversion = float(payload.get("risk_aversion", 0.5))
     margin_priority = float(payload.get("margin_priority", 0.5))
     diff_priority = float(payload.get("differentiation_priority", 0.8))
@@ -854,7 +861,7 @@ async def get_cryptographic_audit_chain(workflow_id: Optional[str] = None):
             "parent_sha256": "91a82b40ef67c1328905dae74139b82c047125890fa38b417c920e5418b763e1",
             "verified": True,
             "timestamp": now_iso,
-            "evidence_ref": "github.issue.create -> acme-ai/enterprise-platform (Ref: wire_job_8f2a1b9)"
+            "evidence_ref": "github.issue.create -> anthropic/enterprise-intelligence (Ref: wire_job_8f2a1b9)"
         },
         {
             "block_height": 6,

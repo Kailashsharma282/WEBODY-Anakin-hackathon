@@ -1,13 +1,13 @@
 [
   {
     "id": "mem_01",
-    "entity": "Competitor X",
+    "entity": "DeepSeek AI",
     "event_type": "PRICING_SHIFT",
-    "title": "Competitor X cuts enterprise pricing by 22% and bundles AI governance suite",
-    "summary": "Aggressive enterprise market repositioning to capture mid-market AI companies by undercutting Acme AI base price and eliminating add-on fees.",
+    "title": "DeepSeek cuts V3 inference pricing by 70% and releases open distillation weights",
+    "summary": "Aggressive enterprise market repositioning undercutting proprietary model API rates and accelerating enterprise self-hosted evaluation.",
     "category": "commercial",
-    "impact_score": 92,
-    "precedent_lesson": "Direct price matching triggers margin erosion; differentiation via SLA and certified compliance yields +34% higher retention."
+    "impact_score": 93,
+    "precedent_lesson": "Direct price matching triggers margin erosion; differentiation via SLA, certified security, and enterprise support yields +34% higher retention."
   },
   {
     "id": "mem_02",

@@ -13,8 +13,8 @@ class WarRoomService:
     @staticmethod
     def simulate_multiturn_reaction(
         primary_scenario: str,
-        competitor_name: str = "Competitor X",
-        brand_name: str = "Acme AI",
+        competitor_name: str = "OpenAI",
+        brand_name: str = "Anthropic",
         risk_aversion: float = 0.5,
         margin_priority: float = 0.5,
         differentiation_priority: float = 0.8
@@ -37,11 +37,11 @@ class WarRoomService:
 
             turn_2_title = f"Red Counter: {competitor_name} Frees Introductory Tier & Accelerates Open Ecosystem"
             turn_2_action = f"{competitor_name} attempts to bypass compliance gating by slashing API tier fees by an additional 10% and publishing basic open-source compliance templates."
-            turn_2_impact = "Triggers low-end margin erosion for {competitor_name}; fails to sway audited Tier-1 enterprise buyers."
+            turn_2_impact = f"Triggers low-end margin erosion for {competitor_name}; fails to sway audited Tier-1 enterprise buyers."
 
             turn_3_title = f"Blue Equilibrium: Multi-Year Contract Lock-in with Regulatory Indemnity"
             turn_3_action = f"{brand_name} offers 2-year commitments with guaranteed regulatory audit defense and zero price escalation."
-            turn_3_impact = "Captures 82% of top-tier accounts; locks out {competitor_name} for 24 months."
+            turn_3_impact = f"Captures 82% of top-tier accounts; locks out {competitor_name} for 24 months."
             
             defensibility_score = 92
             churn_risk_mitigated = 88

@@ -24,6 +24,26 @@ interface WorldGraphProps {
   isDemoActive?: boolean;
 }
 
+const CANONICAL_FALLBACK_NODES: GraphNode[] = [
+  { id: "node-anthropic", name: "Anthropic", label: "Anthropic", type: "company", importance: 100, status: "active", domain: "anthropic.com", description: "Our primary business: Claude frontier reasoning models and Enterprise AI platform." },
+  { id: "node-openai", name: "OpenAI", label: "OpenAI", type: "competitor", importance: 95, status: "active", domain: "openai.com", description: "Primary competitor operating ChatGPT Enterprise and GPT-4o/o1 reasoning frontier." },
+  { id: "node-deepmind", name: "Google DeepMind", label: "Google DeepMind", type: "competitor", importance: 92, status: "active", domain: "deepmind.google", description: "Frontier research lab deploying Gemini 2.0 multi-modal models." },
+  { id: "node-aws", name: "AWS Bedrock", label: "AWS Bedrock", type: "vendor", importance: 90, status: "active", domain: "aws.amazon.com", description: "Primary cloud distribution and high-performance compute partner." },
+  { id: "node-mistral", name: "Mistral AI", label: "Mistral AI", type: "competitor", importance: 82, status: "active", domain: "mistral.ai", description: "European frontier model provider with open-weight enterprise models." },
+  { id: "node-eu-reg", name: "EU AI Office", label: "EU AI Office", type: "regulator", importance: 88, status: "active", domain: "digital-strategy.ec.europa.eu", description: "Article 52/53 General Purpose AI governance enforcement body." },
+  { id: "node-enterprise", name: "Enterprise Market", label: "Enterprise Market", type: "marketplace", importance: 86, status: "active", domain: "enterprise.market", description: "Target Fortune 500 and Global 2000 AI procurement pipeline." },
+];
+
+const CANONICAL_FALLBACK_EDGES: GraphEdge[] = [
+  { id: "edge-1", source: "node-openai", target: "node-anthropic", type: "competes_with", confidence: 98, current_value: "Frontier Enterprise Competition" },
+  { id: "edge-2", source: "node-anthropic", target: "node-aws", type: "depends_on", confidence: 95, current_value: "Cloud Infrastructure & Bedrock APIs" },
+  { id: "edge-3", source: "node-anthropic", target: "node-eu-reg", type: "targets", confidence: 90, current_value: "EU AI Act Compliance" },
+  { id: "edge-4", source: "node-deepmind", target: "node-openai", type: "competes_with", confidence: 94, current_value: "Frontier Reasoning Race" },
+  { id: "edge-5", source: "node-anthropic", target: "node-enterprise", type: "sells", confidence: 96, current_value: "Claude Enterprise ARR" },
+  { id: "edge-6", source: "node-openai", target: "node-enterprise", type: "targets", confidence: 92, current_value: "Enterprise Accounts Defense" },
+  { id: "edge-7", source: "node-mistral", target: "node-anthropic", type: "competes_with", confidence: 85, current_value: "European Market Share" },
+];
+
 export const WorldGraph: React.FC<WorldGraphProps> = ({
   nodes,
   edges,
@@ -33,16 +53,29 @@ export const WorldGraph: React.FC<WorldGraphProps> = ({
 }) => {
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
 
-  const getNodeDisplayName = (node?: GraphNode) => node?.name || node?.label || "Entity";
-
-  // Center node is Acme AI (user company)
-  const centerNode = useMemo(() => {
-    return nodes.find((n) => getNodeDisplayName(n).toLowerCase().includes("acme")) || nodes[0];
+  const effectiveNodes = useMemo(() => {
+    return nodes && nodes.length >= 2 ? nodes : CANONICAL_FALLBACK_NODES;
   }, [nodes]);
 
+  const effectiveEdges = useMemo(() => {
+    return edges && edges.length >= 2 ? edges : CANONICAL_FALLBACK_EDGES;
+  }, [edges]);
+
+  const getNodeDisplayName = (node?: GraphNode) => node?.name || node?.label || "Entity";
+
+  // Center node is Anthropic (primary monitored entity)
+  const centerNode = useMemo(() => {
+    return (
+      effectiveNodes.find((n) => {
+        const d = getNodeDisplayName(n).toLowerCase();
+        return d.includes("anthropic") || d.includes("company") || n.type === "company";
+      }) || effectiveNodes[0]
+    );
+  }, [effectiveNodes]);
+
   const otherNodes = useMemo(() => {
-    return nodes.filter((n) => n.id !== centerNode?.id);
-  }, [nodes, centerNode]);
+    return effectiveNodes.filter((n) => n.id !== centerNode?.id);
+  }, [effectiveNodes, centerNode]);
 
   // Compute radial layout positions in 800x520 canvas
   const centerX = 400;
@@ -70,7 +103,7 @@ export const WorldGraph: React.FC<WorldGraphProps> = ({
   const getNodeIcon = (type: string, name: string) => {
     const t = type.toLowerCase();
     const n = name.toLowerCase();
-    if (n.includes("acme")) return Sparkles;
+    if (n.includes("anthropic") || n.includes("company")) return Sparkles;
     if (t === "competitor" || n.includes("competitor")) return ShieldAlert;
     if (t === "technology" || n.includes("aws")) return Cpu;
     if (t === "regulator" || n.includes("regulat")) return FileCheck;
@@ -96,11 +129,10 @@ export const WorldGraph: React.FC<WorldGraphProps> = ({
       </div>
 
       {/* HUD Header overlay */}
-
       <div className="absolute top-4 left-4 z-10 flex items-center gap-3">
         <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/80 border border-slate-700/60 text-xs font-mono">
           <span className="w-2 h-2 rounded-full bg-hud-cyan animate-ping" />
-          <span className="text-slate-300">LIVING WORLD MODEL GRAPH</span>
+          <span className="text-slate-300 font-bold">LIVING WORLD MODEL GRAPH</span>
         </div>
         {isDemoActive && (
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-hud-rose/10 border border-hud-rose/40 text-[11px] font-mono text-hud-rose animate-pulse">
@@ -109,8 +141,8 @@ export const WorldGraph: React.FC<WorldGraphProps> = ({
         )}
       </div>
 
-      <div className="absolute top-4 right-4 z-10 text-xs font-mono text-slate-500">
-        INTERACTIVE HUD • CLICK NODE TO INSPECT
+      <div className="absolute top-4 right-4 z-10 text-xs font-mono text-slate-400 bg-slate-950/60 px-2.5 py-1 rounded-md border border-slate-800">
+        INTERACTIVE RADAR HUD • {effectiveNodes.length} NODES ONLINE
       </div>
 
       {/* SVG Canvas */}
@@ -138,7 +170,7 @@ export const WorldGraph: React.FC<WorldGraphProps> = ({
         <circle cx={centerX} cy={centerY} r="90" fill="url(#centerGlow)" />
 
         {/* Edges */}
-        {edges.map((edge) => {
+        {effectiveEdges.map((edge) => {
           const srcPos = nodePositions[edge.source];
           const tgtPos = nodePositions[edge.target];
           if (!srcPos || !tgtPos) return null;
@@ -185,7 +217,7 @@ export const WorldGraph: React.FC<WorldGraphProps> = ({
         })}
 
         {/* Nodes */}
-        {nodes.map((node) => {
+        {effectiveNodes.map((node) => {
           const pos = nodePositions[node.id];
           if (!pos) return null;
 

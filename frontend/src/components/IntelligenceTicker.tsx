@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Radio, ArrowUpRight, TrendingDown, ShieldAlert, Zap, Globe } from "lucide-react";
+import { Signal } from "../lib/types";
 
 interface TickerItem {
   id: string;
@@ -12,56 +12,58 @@ interface TickerItem {
   time: string;
 }
 
-const TICKER_ITEMS: TickerItem[] = [
-  {
-    id: "t1",
-    source: "SENTINEL CRAWLER",
-    headline: "COMPETITOR X: Enterprise Tier cut by -22% to $7,800/mo (Free Governance Included)",
-    badge: "CRITICAL SHIFT",
-    color: "rose",
-    time: "2m ago"
-  },
-  {
-    id: "t2",
-    source: "ANAKIN WIRE",
-    headline: "AWS BEDROCK: Batch API discounts expanded to 50% for Claude 3.5 Sonnet",
-    badge: "CLOUD COST",
-    color: "amber",
-    time: "14m ago"
-  },
-  {
-    id: "t3",
-    source: "AI CITATION RADAR",
-    headline: "ACME AI: Enterprise recommendation rate up +18% on Gemini 1.5 Pro benchmarks",
-    badge: "RADAR UP",
-    color: "emerald",
-    time: "26m ago"
-  },
-  {
-    id: "t4",
-    source: "CARTOGRAPHER",
-    headline: "NEW TOPOLOGY DISCOVERED: 42 new enterprise endpoints mapped for Competitor X",
-    badge: "MAP EXPANDED",
-    color: "cyan",
-    time: "41m ago"
-  },
-  {
-    id: "t5",
-    source: "EU REGULATORY WATCH",
-    headline: "EU AI ACT: Mandatory Conformity Assessment enacted for General Purpose AI",
-    badge: "GOVERNANCE",
-    color: "rose",
-    time: "1h ago"
-  }
-];
-
 interface IntelligenceTickerProps {
+  signals?: Signal[];
   onOpenDiff?: () => void;
 }
 
-export function IntelligenceTicker({ onOpenDiff }: IntelligenceTickerProps) {
+export function IntelligenceTicker({ signals, onOpenDiff }: IntelligenceTickerProps) {
+  const dynamicItems: TickerItem[] = (signals && signals.length > 0)
+    ? signals.map((s, idx) => ({
+        id: s.id || `sig-${idx}`,
+        source: (s.source || "SENTINEL STREAM").split(":")[0].toUpperCase(),
+        headline: `${s.entity ? s.entity.toUpperCase() + ": " : ""}${s.title}`,
+        badge: s.severity === "critical" ? "CRITICAL SHIFT" : (s.event_type?.replace("_", " ").toUpperCase() || "LIVE INTEL"),
+        color: (s.severity === "critical" ? "rose" : s.importance > 85 ? "amber" : s.event_type?.includes("feature") ? "emerald" : "cyan") as "cyan" | "rose" | "emerald" | "amber",
+        time: s.timestamp ? new Date(s.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Live"
+      }))
+    : [
+        {
+          id: "t1",
+          source: "ANAKIN MONITOR",
+          headline: "OPENAI: Slashes API Pricing by 50% across Frontier Models",
+          badge: "PRICE SHIFT",
+          color: "rose",
+          time: "Live"
+        },
+        {
+          id: "t2",
+          source: "ANAKIN SEARCH",
+          headline: "ANTHROPIC: Deploys Claude 3.7 Sonnet Hybrid Reasoning Architecture",
+          badge: "CAPABILITY",
+          color: "emerald",
+          time: "Live"
+        },
+        {
+          id: "t3",
+          source: "EU REGULATORY WATCH",
+          headline: "EU AI ACT: Article 52 Mandatory Model Provenance Audit Enacted",
+          badge: "GOVERNANCE",
+          color: "amber",
+          time: "Live"
+        },
+        {
+          id: "t4",
+          source: "CARTOGRAPHER",
+          headline: "GOOGLE DEEPMIND: Gemini 2.0 Real-Time Multimodal Agent Tooling Deployed",
+          badge: "MULTIMODAL",
+          color: "cyan",
+          time: "Live"
+        }
+      ];
+
   // Duplicate for seamless infinite loop
-  const items = [...TICKER_ITEMS, ...TICKER_ITEMS];
+  const items = [...dynamicItems, ...dynamicItems];
 
   return (
     <div className="w-full bg-slate-950/90 border-y border-slate-800/80 py-1.5 overflow-hidden relative select-none">

@@ -91,10 +91,15 @@ class WorldModelService:
         Retrieves the complete living persistent graph for interactive visualization.
         """
         entities_res = await db.execute(select(Entity))
-        entities = entities_res.scalars().all()
+        entities = list(entities_res.scalars().all())
+
+        if not entities:
+            await WorldModelService.seed_initial_world(db)
+            entities_res = await db.execute(select(Entity))
+            entities = list(entities_res.scalars().all())
 
         rels_res = await db.execute(select(Relationship))
-        rels = rels_res.scalars().all()
+        rels = list(rels_res.scalars().all())
 
         nodes = [
             GraphNode(
@@ -246,7 +251,7 @@ class WorldModelService:
                 "last_observed": entity.updated_at.isoformat() if entity.updated_at else None
             },
             "recent_changes": recent_changes,
-            "why_it_matters": f"{entity.name} directly influences Acme AI's enterprise market share. Recent strategic pivots could disrupt pricing dynamics and vendor evaluation cycles.",
+            "why_it_matters": f"{entity.name} directly influences market share and enterprise AI adoption. Recent strategic pivots could disrupt pricing dynamics and vendor evaluation cycles.",
             "related_entities": related,
             "timeline": timeline,
             "predictions": predictions,
@@ -254,7 +259,7 @@ class WorldModelService:
             "evidence": [
                 {
                     "source": entity.domain or "web-intelligence",
-                    "claim": f"Historical pricing patterns for {entity.name}",
+                    "claim": f"Historical pricing patterns and model updates for {entity.name}",
                     "confidence": 92
                 }
             ],
@@ -264,73 +269,65 @@ class WorldModelService:
     @staticmethod
     async def seed_initial_world(db: AsyncSession):
         """
-        Seeds Acme AI (center node) and peripheral ecosystem entities & relationships.
+        Seeds real-world AI ecosystem entities and strategic relationships.
         """
-        # Center Node: Acme AI (USER COMPANY)
-        acme = await WorldModelService.get_or_create_entity(
-            db, "Acme AI", entity_type="company", domain="acme.ai",
-            description="Our primary operating business: Enterprise Generative AI platform.", importance=100
+        # Center Node: Anthropic (Primary Focus Company)
+        anthropic = await WorldModelService.get_or_create_entity(
+            db, "Anthropic", entity_type="company", domain="anthropic.com",
+            description="Frontier AI research lab and creator of the Claude 3.5 & 3.7 model family.", importance=100
         )
         
-        comp_x = await WorldModelService.get_or_create_entity(
-            db, "Competitor X", entity_type="competitor", domain="competitorx.ai",
-            description="Key enterprise AI competitor in EMEA & North America.", importance=95
+        openai = await WorldModelService.get_or_create_entity(
+            db, "OpenAI", entity_type="competitor", domain="openai.com",
+            description="Leading frontier AI provider across GPT-4o, o3-mini, and enterprise API platforms.", importance=95
+        )
+
+        deepmind = await WorldModelService.get_or_create_entity(
+            db, "Google DeepMind", entity_type="competitor", domain="deepmind.google",
+            description="Alphabet AI research lab deploying Gemini multimodal and real-time reasoning models.", importance=92
         )
 
         aws = await WorldModelService.get_or_create_entity(
-            db, "AWS Cloud", entity_type="vendor", domain="aws.amazon.com",
-            description="Primary cloud compute and model hosting vendor.", importance=85
+            db, "AWS Bedrock", entity_type="vendor", domain="aws.amazon.com",
+            description="Primary hyperscaler model hosting and cloud infrastructure distribution partner.", importance=88
         )
 
-        langchain = await WorldModelService.get_or_create_entity(
-            db, "LangChain", entity_type="technology", domain="langchain.com",
-            description="Agentic framework and component dependency.", importance=75
+        mistral = await WorldModelService.get_or_create_entity(
+            db, "Mistral AI", entity_type="technology", domain="mistral.ai",
+            description="European open-weights and commercial enterprise reasoning model provider.", importance=80
         )
 
         eu_reg = await WorldModelService.get_or_create_entity(
-            db, "EU AI Act Board", entity_type="regulator", domain="artificialintelligenceact.eu",
-            description="High-risk AI compliance governing body.", importance=90
-        )
-
-        gov_suite = await WorldModelService.get_or_create_entity(
-            db, "Governance Suite v2", entity_type="product", domain="acme.ai/governance",
-            description="Internal strategic product for compliance guardrails.", importance=80
+            db, "EU AI Office", entity_type="regulator", domain="digital-strategy.ec.europa.eu",
+            description="European Commission regulatory body enforcing GPAI systemic risk conformity under the EU AI Act.", importance=90
         )
 
         enterprise_clients = await WorldModelService.get_or_create_entity(
-            db, "Global 2000 Buyers", entity_type="customer", domain="enterprise-market.org",
-            description="Tier 1 target enterprise customer segment.", importance=90
-        )
-
-        ai_narratives = await WorldModelService.get_or_create_entity(
-            db, "Enterprise AI Safety Narrative", entity_type="narrative", domain="ai-visibility.anakin.io",
-            description="Dominant market discourse regarding model risk and compliance.", importance=88
+            db, "Enterprise Market", entity_type="marketplace", domain="fortune500.com",
+            description="Tier 1 Global 2000 procurement accounts evaluating secure agent deployment.", importance=86
         )
 
         # Connect initial relationships
         await WorldModelService.update_relationship(
-            db, comp_x.id, acme.id, "competes_with", confidence=95, current_val="Direct Enterprise Head-to-Head"
+            db, openai.id, anthropic.id, "competes_with", confidence=98, current_val="Frontier Model API Price War (-50%)"
         )
         await WorldModelService.update_relationship(
-            db, acme.id, aws.id, "depends_on", confidence=90, current_val="GPU Cluster & Bedrock APIs"
+            db, anthropic.id, aws.id, "depends_on", confidence=95, current_val="Strategic Cloud & Bedrock Compute Distribution"
         )
         await WorldModelService.update_relationship(
-            db, acme.id, langchain.id, "integrates_with", confidence=85, current_val="Agent Runtime v0.2"
+            db, deepmind.id, openai.id, "competes_with", confidence=94, current_val="Multimodal Reasoning Race (Gemini vs GPT-4o)"
         )
         await WorldModelService.update_relationship(
-            db, acme.id, eu_reg.id, "targets", confidence=88, current_val="Full Article 50 Compliance"
+            db, anthropic.id, eu_reg.id, "targets", confidence=90, current_val="Article 50 & 52 Model Provenance Compliance"
         )
         await WorldModelService.update_relationship(
-            db, acme.id, gov_suite.id, "owns", confidence=100, current_val="Internal Core IP"
+            db, anthropic.id, enterprise_clients.id, "sells", confidence=94, current_val="Enterprise Claude Workspace & Batch APIs"
         )
         await WorldModelService.update_relationship(
-            db, acme.id, enterprise_clients.id, "sells", confidence=92, current_val="Annual SaaS Subscriptions"
+            db, openai.id, enterprise_clients.id, "targets", confidence=95, current_val="ChatGPT Enterprise & Custom GPTs"
         )
         await WorldModelService.update_relationship(
-            db, comp_x.id, enterprise_clients.id, "targets", confidence=94, current_val="Discount Pricing Campaign"
-        )
-        await WorldModelService.update_relationship(
-            db, comp_x.id, ai_narratives.id, "related_to", confidence=91, current_val="Recent Governance Marketing Pivot"
+            db, mistral.id, enterprise_clients.id, "sells", confidence=82, current_val="On-Premise & Sovereign Cloud Deployments"
         )
 
 world_model_service = WorldModelService()

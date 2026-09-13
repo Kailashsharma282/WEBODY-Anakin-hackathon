@@ -12,59 +12,13 @@ class CrossLLMRadarService:
     """
 
     @staticmethod
-    async def run_radar_analysis(brand_name: str = "Acme AI", competitor_name: str = "Competitor X") -> Dict[str, Any]:
+    async def run_radar_analysis(brand_name: str = "Anthropic", competitor_name: str = "OpenAI") -> Dict[str, Any]:
         """
         Synthesizes multi-model visibility benchmark.
         """
-        is_canonical = (brand_name == "Acme AI" and competitor_name == "Competitor X")
-
-        if is_canonical:
-            model_surfaces = [
-                {
-                    "model": "GPT-4o (OpenAI)",
-                    "brand_share_of_voice": 58,
-                    "competitor_share_of_voice": 42,
-                    "sentiment": "bullish",
-                    "top_recommendation": "Acme AI recommended for enterprise security & SOC2 compliance.",
-                    "citation_sources": ["docs.acme.ai", "gartner.com", "techcrunch.com"]
-                },
-                {
-                    "model": "Claude 3.5 Sonnet (Anthropic)",
-                    "brand_share_of_voice": 64,
-                    "competitor_share_of_voice": 36,
-                    "sentiment": "highly_positive",
-                    "top_recommendation": "Acme AI cited as market leader for deterministic AI agent safety.",
-                    "citation_sources": ["acme.ai/trust", "venturebeat.com"]
-                },
-                {
-                    "model": "Gemini 2.0 (Google)",
-                    "brand_share_of_voice": 52,
-                    "competitor_share_of_voice": 48,
-                    "sentiment": "neutral",
-                    "top_recommendation": "Competitor X mentioned for low-cost introductory enterprise tiers.",
-                    "citation_sources": ["competitorx.ai/pricing", "cloud.google.com"]
-                },
-                {
-                    "model": "Perplexity Pro (Search Engine)",
-                    "brand_share_of_voice": 61,
-                    "competitor_share_of_voice": 39,
-                    "sentiment": "positive",
-                    "top_recommendation": "Acme AI cited in 4 out of 5 recent enterprise vendor comparison queries.",
-                    "citation_sources": ["docs.anakin.io", "github.com/acme-ai"]
-                },
-                {
-                    "model": "DeepSeek V3",
-                    "brand_share_of_voice": 49,
-                    "competitor_share_of_voice": 51,
-                    "sentiment": "neutral",
-                    "top_recommendation": "Both vendors recognized in enterprise compliance benchmarks.",
-                    "citation_sources": ["artificialintelligenceact.eu", "news.ycombinator.com"]
-                }
-            ]
-        else:
-            clean_b = brand_name.strip()
-            clean_c = competitor_name.strip()
-            model_surfaces = [
+        clean_b = brand_name.strip()
+        clean_c = competitor_name.strip()
+        model_surfaces = [
                 {
                     "model": "GPT-4o (OpenAI)",
                     "brand_share_of_voice": 56,

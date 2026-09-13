@@ -74,40 +74,252 @@ import {
 } from "lucide-react";
 
 
+const INITIAL_NODES: GraphNode[] = [
+  { id: "node-anthropic", name: "Anthropic", label: "Anthropic", type: "company", importance: 100, status: "active", domain: "anthropic.com", description: "Our primary monitored business: Claude frontier reasoning models and Enterprise AI platform." },
+  { id: "node-openai", name: "OpenAI", label: "OpenAI", type: "competitor", importance: 95, status: "active", domain: "openai.com", description: "Frontier competitor operating ChatGPT Enterprise and GPT-4o/o1 reasoning frontier." },
+  { id: "node-deepmind", name: "Google DeepMind", label: "Google DeepMind", type: "competitor", importance: 92, status: "active", domain: "deepmind.google", description: "Frontier research lab deploying Gemini 2.0 multimodal models." },
+  { id: "node-aws", name: "AWS Bedrock", label: "AWS Bedrock", type: "vendor", importance: 90, status: "active", domain: "aws.amazon.com", description: "Primary cloud compute and Bedrock foundation model provider." },
+  { id: "node-mistral", name: "Mistral AI", label: "Mistral AI", type: "competitor", importance: 82, status: "active", domain: "mistral.ai", description: "European frontier model provider with open-weight enterprise models." },
+  { id: "node-eu-reg", name: "EU AI Office", label: "EU AI Office", type: "regulator", importance: 88, status: "active", domain: "digital-strategy.ec.europa.eu", description: "Article 52/53 General Purpose AI governance enforcement body." },
+  { id: "node-enterprise", name: "Enterprise Market", label: "Enterprise Market", type: "marketplace", importance: 86, status: "active", domain: "enterprise.market", description: "Target Fortune 500 and Global 2000 AI procurement pipeline." },
+];
+
+const INITIAL_EDGES = [
+  { id: "edge-1", source: "node-openai", target: "node-anthropic", type: "competes_with", confidence: 98, current_value: "Frontier Enterprise Price & Capability War" },
+  { id: "edge-2", source: "node-anthropic", target: "node-aws", type: "depends_on", confidence: 95, current_value: "GPU Cluster & Bedrock APIs" },
+  { id: "edge-3", source: "node-anthropic", target: "node-eu-reg", type: "targets", confidence: 90, current_value: "EU AI Act Article 52 Compliance" },
+  { id: "edge-4", source: "node-deepmind", target: "node-openai", type: "competes_with", confidence: 94, current_value: "Frontier Reasoning Race" },
+  { id: "edge-5", source: "node-anthropic", target: "node-enterprise", type: "sells", confidence: 96, current_value: "Claude Enterprise ARR" },
+  { id: "edge-6", source: "node-openai", target: "node-enterprise", type: "targets", confidence: 92, current_value: "Enterprise Accounts Defense" },
+  { id: "edge-7", source: "node-mistral", target: "node-anthropic", type: "competes_with", confidence: 85, current_value: "European Market Share" },
+];
+
+const INITIAL_SIGNALS: Signal[] = [
+  {
+    id: "sig-openai-1",
+    entity: "OpenAI",
+    source: "Anakin Live Crawl: openai.com/api/pricing",
+    url: "https://openai.com/api/pricing",
+    timestamp: new Date().toISOString(),
+    event_type: "price_changes",
+    title: "OpenAI Slashes GPT-4o API Pricing by 50% with Prompt Caching",
+    summary: "Live Sentinel crawl detected token discount on cached input prompts and increased rate limits across enterprise developer tiers.",
+    content: "Full crawl diff: Input token rates discounted 50% on cached prompts. Batch API discounts expanded to 50% across Tier 4 and Tier 5 enterprise accounts.",
+    importance: 96,
+    severity: "critical",
+    confidence: 0.98,
+    actionability: "high",
+    is_demo: false,
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "sig-anthropic-1",
+    entity: "Anthropic",
+    source: "Anakin Monitor: anthropic.com/news",
+    url: "https://anthropic.com/news",
+    timestamp: new Date(Date.now() - 3600000).toISOString(),
+    event_type: "feature_additions",
+    title: "Anthropic Claude 3.7 Sonnet Hybrid Reasoning Model Deployed",
+    summary: "Hybrid reasoning architecture achieving benchmark leadership in software engineering, complex tool-calling, and compliance evaluation.",
+    content: "Claude 3.7 Sonnet introduces granular thinking token budget controls, allowing enterprises to dynamically dial reasoning depth.",
+    importance: 92,
+    severity: "high",
+    confidence: 0.96,
+    actionability: "high",
+    is_demo: false,
+    created_at: new Date(Date.now() - 3600000).toISOString(),
+  },
+  {
+    id: "sig-eu-1",
+    entity: "EU AI Office",
+    source: "Anakin Monitor: digital-strategy.ec.europa.eu",
+    url: "https://digital-strategy.ec.europa.eu/en/policies/ai-office",
+    timestamp: new Date(Date.now() - 7200000).toISOString(),
+    event_type: "policy_changes",
+    title: "EU AI Office Enacts General-Purpose AI Code of Practice & Transparency Rules",
+    summary: "Mandatory model provenance, watermark attestation, and systemic risk mitigation frameworks established under EU AI Act Chapter V.",
+    content: "General-Purpose AI model providers must furnish verifiable technical documentation, copyright policies, and systemic risk assessments.",
+    importance: 90,
+    severity: "high",
+    confidence: 0.95,
+    actionability: "high",
+    is_demo: false,
+    created_at: new Date(Date.now() - 7200000).toISOString(),
+  },
+  {
+    id: "sig-deepmind-1",
+    entity: "Google DeepMind",
+    source: "Anakin Monitor: deepmind.google/technologies/gemini",
+    url: "https://deepmind.google/technologies/gemini/",
+    timestamp: new Date(Date.now() - 10800000).toISOString(),
+    event_type: "model_release",
+    title: "DeepMind Releases Gemini 2.0 Flash Thinking with Native Multimodality",
+    summary: "Sub-second multimodal reasoning model launched on Google AI Studio and Vertex AI targeting real-time agentic execution.",
+    content: "Frontier multimodal reasoning latency reduced by 40% with native tool calling and spatial reasoning integration.",
+    importance: 86,
+    severity: "medium",
+    confidence: 0.94,
+    actionability: "medium",
+    is_demo: false,
+    created_at: new Date(Date.now() - 10800000).toISOString(),
+  }
+];
+
+const INITIAL_PREDICTIONS: Prediction[] = [
+  {
+    id: "pred-canonical-1",
+    signal_id: "sig-openai-1",
+    entity_id: "node-openai",
+    prediction: "OpenAI pricing discounts will accelerate multi-provider enterprise migration within 45 days",
+    probability: 0.88,
+    confidence: 0.88,
+    time_window: "45 days",
+    supporting_signals: ["sig-openai-1", "sig-anthropic-1"],
+    contradicting_signals: [],
+    reasoning: "Aggressive prompt caching discounts will pressure enterprises to build multi-model router infrastructure rather than standardizing on single-vendor stacks.",
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "pred-canonical-2",
+    signal_id: "sig-eu-1",
+    entity_id: "node-eu-reg",
+    prediction: "Enterprise procurement RFPs will mandate cryptographic model provenance within 60 days",
+    probability: 0.92,
+    confidence: 0.92,
+    time_window: "60 days",
+    supporting_signals: ["sig-eu-1"],
+    contradicting_signals: [],
+    reasoning: "EU AI Act regulatory enforcement mandates transparent supply chain documentation. Tier 1 European enterprises are freezing vendor selection without audit proofs.",
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "pred-canonical-3",
+    signal_id: "sig-anthropic-1",
+    entity_id: "node-anthropic",
+    prediction: "Hybrid reasoning models will become primary requirement in Tier-1 software engineering RFPs",
+    probability: 0.84,
+    confidence: 0.84,
+    time_window: "30 days",
+    supporting_signals: ["sig-anthropic-1"],
+    contradicting_signals: [],
+    reasoning: "Dynamically tunable thinking tokens provide cost-performance Pareto improvements that fixed latency models cannot match.",
+    created_at: new Date().toISOString()
+  }
+];
+
+const INITIAL_SCENARIOS: Scenario[] = [
+  {
+    id: "sc-1",
+    scenario: "DIFFERENTIATE ON HIGH-ASSURANCE HYBRID REASONING & EU GOVERNANCE",
+    score: 94,
+    benefit: 88,
+    risk: 12,
+    complexity: 25,
+    recommended: true,
+    reasoning: "Position Anthropic Claude as the verifiable enterprise platform with tamper-evident audit guarantees, dedicated prompt caching, and EU AI Act compliance."
+  },
+  {
+    id: "sc-2",
+    scenario: "MATCH PRICE CUTS DIRECTLY ACROSS FRONTIER TIERS",
+    score: 64,
+    benefit: 32,
+    risk: 68,
+    complexity: 42,
+    recommended: false,
+    reasoning: "Direct price matching triggers destructive race-to-the-bottom margin erosion without reinforcing technological differentiation."
+  },
+  {
+    id: "sc-3",
+    scenario: "ENTERPRISE CACHE BUNDLE: GUARANTEED PROMPT CACHING WITH MULTI-YEAR ARR",
+    score: 84,
+    benefit: 68,
+    risk: 20,
+    complexity: 34,
+    recommended: false,
+    reasoning: "Protects annual contract value by trading bundled prompt caching latency SLA for multi-year customer commitments."
+  }
+];
+
+const INITIAL_WATCH_TARGETS: WatchTarget[] = [
+  {
+    id: "wt-1",
+    name: "OpenAI API Pricing & Token Tiers",
+    entity_type: "pricing_page",
+    url: "https://openai.com/api/pricing",
+    category: "PRICING",
+    importance: 98,
+    monitoring_frequency: "hourly",
+    enabled: true,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "wt-2",
+    name: "Anthropic Claude Platform Documentation",
+    entity_type: "documentation",
+    url: "https://docs.anthropic.com",
+    category: "DOCUMENTATION",
+    importance: 94,
+    monitoring_frequency: "hourly",
+    enabled: true,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "wt-3",
+    name: "EU AI Office Official Repository",
+    entity_type: "regulatory_portal",
+    url: "https://digital-strategy.ec.europa.eu/en/policies/ai-office",
+    category: "REGULATORY",
+    importance: 92,
+    monitoring_frequency: "daily",
+    enabled: true,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "wt-4",
+    name: "Google DeepMind Research Publications",
+    entity_type: "research_feed",
+    url: "https://deepmind.google/research/",
+    category: "RESEARCH",
+    importance: 88,
+    monitoring_frequency: "daily",
+    enabled: true,
+    created_at: new Date().toISOString()
+  }
+];
+
 export default function Dashboard() {
   // Navigation State
   const [activeTab, setActiveTab] = useState<string>("WORLD");
 
   // World Graph & Telemetry
   const [graphData, setGraphData] = useState<WorldGraph>({
-    nodes: [],
-    edges: [],
+    nodes: INITIAL_NODES,
+    edges: INITIAL_EDGES,
     updated_at: new Date().toISOString(),
   });
-  const [signals, setSignals] = useState<Signal[]>([]);
-  const [predictions, setPredictions] = useState<Prediction[]>([]);
-  const [watchTargets, setWatchTargets] = useState<WatchTarget[]>([]);
+  const [signals, setSignals] = useState<Signal[]>(INITIAL_SIGNALS);
+  const [predictions, setPredictions] = useState<Prediction[]>(INITIAL_PREDICTIONS);
+  const [watchTargets, setWatchTargets] = useState<WatchTarget[]>(INITIAL_WATCH_TARGETS);
   const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
   const [aiReputation, setAiReputation] = useState<AIVisibility | null>(null);
   const [settings, setSettings] = useState<Settings>({
     AUTO_ACTION: false,
-    DEMO_AUTO_ACTION: true,
-    ANAKIN_API_KEY_CONFIGURED: false,
-    ACTIVE_MODE: "DEMO_RELIABILITY",
+    DEMO_AUTO_ACTION: false,
+    ANAKIN_API_KEY_CONFIGURED: true,
+    ACTIVE_MODE: "LIVE",
   });
 
   // Modal / Drawer States
   const [selectedEntity, setSelectedEntity] = useState<GraphNode | null>(null);
   const [activeInvestigation, setActiveInvestigation] = useState<Investigation | null>(null);
-  const [activeSimulationScenarios, setActiveSimulationScenarios] = useState<Scenario[]>([]);
+  const [activeSimulationScenarios, setActiveSimulationScenarios] = useState<Scenario[]>(INITIAL_SCENARIOS);
   const [activeExecutedAction, setActiveExecutedAction] = useState<Action | null>(null);
   const [agentTrail, setAgentTrail] = useState<AgentTrailStep[]>([]);
   const [isDiffModalOpen, setIsDiffModalOpen] = useState<boolean>(false);
   const [isAuditModalOpen, setIsAuditModalOpen] = useState<boolean>(false);
-  const [selectedRivalry, setSelectedRivalry] = useState<string>("canonical");
+  const [selectedRivalry, setSelectedRivalry] = useState<string>("frontier_ai");
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  
   // Loading & Execution States
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isDemoRunning, setIsDemoRunning] = useState<boolean>(false);
@@ -118,8 +330,6 @@ export default function Dashboard() {
   const [connectionInfo, setConnectionInfo] = useState<any>(null);
   const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
   const [isWsConnected, setIsWsConnected] = useState<boolean>(false);
-
-
 
   // Initial Data Fetching
   const fetchAllData = async () => {
@@ -132,24 +342,34 @@ export default function Dashboard() {
         api.getWatchTargets().catch(() => []),
         api.getSettings().catch(() => ({
           AUTO_ACTION: false,
-          DEMO_AUTO_ACTION: true,
-          ANAKIN_API_KEY_CONFIGURED: false,
-          ACTIVE_MODE: "DEMO_RELIABILITY",
+          DEMO_AUTO_ACTION: false,
+          ANAKIN_API_KEY_CONFIGURED: true,
+          ACTIVE_MODE: "LIVE",
         })),
       ]);
 
-      setGraphData(graph);
-      setSignals(sigs);
-      setPredictions(preds);
-      setWatchTargets(targets);
-      setSettings(sett);
+      if (graph && graph.nodes && graph.nodes.length > 0) {
+        setGraphData(graph);
+      }
+      if (sigs && sigs.length > 0) {
+        setSignals(sigs);
+      }
+      if (preds && preds.length > 0) {
+        setPredictions(preds);
+      }
+      if (targets && targets.length > 0) {
+        setWatchTargets(targets);
+      }
+      if (sett) {
+        setSettings(sett);
+      }
 
-      // Fetch Competitor X timeline and AI reputation if exists
-      const compX = graph.nodes.find((n) => (n.name || n.label || "").toLowerCase().includes("competitor"));
-      if (compX) {
+      // Fetch primary target entity timeline and AI reputation if exists
+      const primaryTarget = (graph && graph.nodes) ? (graph.nodes.find((n) => (n.name || n.label || "").toLowerCase().includes("openai")) || graph.nodes[0]) : null;
+      if (primaryTarget) {
         const [tl, ai] = await Promise.all([
-          api.getTimeline(compX.id).catch(() => []),
-          api.getAIReputation(compX.id).catch(() => null),
+          api.getTimeline(primaryTarget.id).catch(() => []),
+          api.getAIReputation(primaryTarget.id).catch(() => null),
         ]);
         setTimelineEvents(tl);
         setAiReputation(ai);
@@ -322,10 +542,10 @@ export default function Dashboard() {
       const action = await api.executeAction({
         action_id: "github.issue.create",
         payload: {
-          repo: "acme-ai/enterprise-platform",
+          repo: "anthropic/enterprise-intelligence",
           title: `COUNTER-STRATEGY: ${sc.scenario}`,
-          body: `## Execution Order\nDispatched from WEBODY Hands.\nReasoning: ${sc.reasoning}`,
-          labels: ["priority-p0", "anakin-wire", "hackathon-demo"]
+          body: `## Execution Order\nDispatched from WEBODY Hands autonomous executor.\nReasoning: ${sc.reasoning}`,
+          labels: ["priority-p0", "anakin-wire", "autonomous-action"]
         },
         auto_approved: true
       });
@@ -449,11 +669,11 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
   return (
     <div className="min-h-screen bg-background text-slate-100 flex flex-col font-sans">
       {/* Top Header Bar */}
-      <header className="sticky top-0 z-40 w-full glass-panel border-b border-surface-border bg-background/90 backdrop-blur-md">
+      <header className="sticky top-0 z-40 w-full glass-panel border-b border-surface-border bg-background/95 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           {/* Brand */}
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-slate-900 border border-hud-cyan/50 flex items-center justify-center neon-glow-cyan">
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="w-9 h-9 rounded-lg bg-slate-900 border border-hud-cyan/50 flex items-center justify-center neon-glow-cyan shadow-sm shadow-hud-cyan/30">
               <span className="text-hud-cyan font-mono font-black text-lg tracking-tighter">W</span>
             </div>
             <div>
@@ -461,8 +681,8 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
                 <span className="font-mono font-bold text-base tracking-widest text-slate-100">
                   WEBODY
                 </span>
-                <span className="hidden sm:inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-hud-cyan/15 text-hud-cyan border border-hud-cyan/40">
-                  OS v1.0
+                <span className="inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-hud-cyan/15 text-hud-cyan border border-hud-cyan/40">
+                  OS v2.0
                 </span>
               </div>
               <p className="hidden md:block text-[11px] font-mono text-slate-400">
@@ -472,26 +692,26 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
           </div>
 
           {/* Autonomous Loop Pill */}
-          <div className="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/80 border border-slate-800 text-[10px] font-mono text-slate-400">
-            <span className="text-hud-cyan">OBSERVE</span>
+          <div className="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/80 border border-slate-800 text-[10px] font-mono text-slate-400 shrink-0">
+            <span className="text-hud-cyan font-semibold">OBSERVE</span>
             <span>→</span>
-            <span className="text-hud-violet">UNDERSTAND</span>
+            <span className="text-hud-violet font-semibold">UNDERSTAND</span>
             <span>→</span>
-            <span className="text-hud-amber">PREDICT</span>
+            <span className="text-hud-amber font-semibold">PREDICT</span>
             <span>→</span>
-            <span className="text-hud-emerald">SIMULATE</span>
+            <span className="text-hud-emerald font-semibold">SIMULATE</span>
             <span>→</span>
-            <span className="text-hud-rose">ACT</span>
+            <span className="text-hud-rose font-semibold">ACT</span>
             <span>→</span>
-            <span className="text-slate-300">LEARN</span>
+            <span className="text-slate-300 font-semibold">LEARN</span>
           </div>
 
-          {/* Right Controls: Mode, Briefing, Dossier & RUN THE FUTURE */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* Right Controls: Exactly 3 items, perfectly spaced, zero overflow */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Live Connection Status Pill */}
             <button
               onClick={() => setActiveTab("INSPECTOR")}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-[10px] font-mono text-slate-300 hover:border-slate-700 transition-colors"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-slate-900 border border-slate-800 text-[10px] font-mono text-slate-300 hover:border-slate-700 transition-colors shrink-0"
               title="Click to open Live Anakin Inspector"
             >
               <span
@@ -499,18 +719,18 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
                   isWsConnected ? "bg-hud-emerald animate-pulse" : "bg-hud-amber"
                 }`}
               />
-              <span className="hidden sm:inline">
-                {isWsConnected ? "LIVE TELEMETRY (8000)" : "CONNECTING..."}
+              <span className="hidden sm:inline font-bold">
+                {isWsConnected ? "LIVE TELEMETRY (8008)" : "CONNECTING (8008)..."}
               </span>
-              <span className="sm:hidden">
-                {isWsConnected ? "SYNC" : "OFFLINE"}
+              <span className="sm:hidden font-bold">
+                {isWsConnected ? "SYNC" : "8008"}
               </span>
             </button>
 
             {/* Audio Intelligence Briefing with Waveform */}
             <button
               onClick={handlePlayBriefing}
-              className={`p-2 rounded-lg border text-xs font-mono transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-lg border text-xs font-mono transition-all flex items-center gap-1.5 shrink-0 ${
                 isPlayingAudio
                   ? "bg-hud-rose/20 text-hud-rose border-hud-rose animate-pulse"
                   : "bg-slate-900 border-slate-800 text-slate-300 hover:text-hud-cyan hover:border-hud-cyan/50"
@@ -527,65 +747,17 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
               ) : (
                 <Volume2 className="w-3.5 h-3.5" />
               )}
-              <span className="hidden md:inline">{isPlayingAudio ? "AUDIO PLAYING" : "BRIEFING"}</span>
+              <span className="hidden sm:inline font-bold">{isPlayingAudio ? "PLAYING" : "BRIEFING"}</span>
             </button>
 
-            {/* Export Strategic Dossier */}
-            <button
-              onClick={handleExportDossier}
-              className="hidden lg:flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300 hover:text-slate-100 hover:border-slate-700 transition-all"
-              title="Download Executive Intelligence Report"
-            >
-              <FileDown className="w-3.5 h-3.5" />
-              <span>DOSSIER</span>
-            </button>
-
-            {/* Visual Sentinel Diff Inspector */}
-            <button
-              onClick={() => setIsDiffModalOpen(true)}
-              className="hidden md:flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300 hover:text-hud-rose hover:border-hud-rose/50 transition-all"
-              title="Open Sentinel Side-by-Side Change Diff"
-            >
-              <Split className="w-3.5 h-3.5 text-hud-rose" />
-              <span>SENTINEL DIFF</span>
-            </button>
-
-            {/* Cryptographic Forensic Audit Button */}
-            <button
-              onClick={() => setIsAuditModalOpen(true)}
-              className="hidden xl:flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300 hover:text-hud-emerald hover:border-hud-emerald/50 transition-all"
-              title="Inspect Verifiable SHA-256 Cryptographic Provenance Chain"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-hud-emerald" />
-              <span>AUDIT PROOF</span>
-            </button>
-
-            {/* Rivalry Benchmark Selector */}
-            <div className="hidden xl:flex items-center gap-1.5 bg-slate-900 border border-slate-700/80 rounded-lg px-2 py-1.5 text-xs font-mono">
-              <Swords className="w-3.5 h-3.5 text-hud-amber" />
-              <select
-                value={selectedRivalry}
-                onChange={(e) => setSelectedRivalry(e.target.value)}
-                className="bg-transparent text-slate-200 outline-none text-xs cursor-pointer font-medium"
-                title="Select Competitive Benchmark Rivalry"
-              >
-                <option value="canonical" className="bg-slate-900 text-slate-200">Acme vs. Competitor X (-22%)</option>
-                <option value="frontier_ai" className="bg-slate-900 text-slate-200">Anthropic vs. OpenAI (Price War)</option>
-                <option value="cloud_agents" className="bg-slate-900 text-slate-200">DeepMind vs. Microsoft (Copilot)</option>
-                <option value="crm_agents" className="bg-slate-900 text-slate-200">Salesforce vs. HubSpot (Breeze)</option>
-                <option value="defense_data" className="bg-slate-900 text-slate-200">Palantir vs. Snowflake (Sovereign)</option>
-              </select>
-            </div>
-
-            {/* Deterministic Demo Button (Sections 21 & 36) */}
+            {/* Deterministic Demo Button (RUN THE FUTURE) - Prominent, Uncrushable, Glowing */}
             <button
               onClick={handleRunTheFuture}
               disabled={isDemoRunning}
-              className="flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-lg bg-gradient-to-r from-hud-cyan via-teal-400 to-hud-cyan text-slate-950 font-mono font-bold text-xs tracking-wider shadow-lg shadow-hud-cyan/25 hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-hud-cyan via-teal-400 to-hud-cyan text-slate-950 font-mono font-black text-xs tracking-wider shadow-lg shadow-hud-cyan/30 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 shrink-0 whitespace-nowrap cursor-pointer"
             >
               <Play className={`w-3.5 h-3.5 fill-current ${isDemoRunning ? "animate-spin" : ""}`} />
-              <span className="hidden sm:inline">{isDemoRunning ? "SIMULATING..." : "RUN THE FUTURE"}</span>
-              <span className="sm:hidden">{isDemoRunning ? "..." : "RUN"}</span>
+              <span>{isDemoRunning ? "SIMULATING..." : "RUN THE FUTURE"}</span>
             </button>
           </div>
         </div>
@@ -615,7 +787,7 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
       </header>
 
       {/* Cyber Intelligence Live Ticker Tape */}
-      <IntelligenceTicker onOpenDiff={() => setIsDiffModalOpen(true)} />
+      <IntelligenceTicker signals={signals} onOpenDiff={() => setIsDiffModalOpen(true)} />
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
@@ -720,6 +892,59 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
           </div>
         )}
 
+        {/* Strategic Command Deck: Benchmark Selector, Sentinel Diff, Audit Proof & Dossier */}
+        <div className="p-3.5 rounded-xl glass-panel border border-slate-800/90 bg-slate-950/80 shadow-md flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 font-mono">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-hud-amber/10 border border-hud-amber/30 text-[11px] font-bold text-hud-amber">
+              <Swords className="w-3.5 h-3.5" />
+              <span>BENCHMARK RIVALRY:</span>
+            </div>
+            <select
+              value={selectedRivalry}
+              onChange={(e) => {
+                setSelectedRivalry(e.target.value);
+                handleRunTheFuture();
+              }}
+              className="bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-hud-cyan font-bold outline-none cursor-pointer hover:border-hud-cyan transition-colors"
+              title="Select Competitive Benchmark Rivalry"
+            >
+              <option value="frontier_ai" className="bg-slate-900 text-slate-200">Anthropic vs. OpenAI (Frontier Reasoning & Price War)</option>
+              <option value="cloud_agents" className="bg-slate-900 text-slate-200">DeepMind vs. OpenAI (Multimodal Reasoning Race)</option>
+              <option value="crm_agents" className="bg-slate-900 text-slate-200">Salesforce vs. HubSpot (Enterprise Agent Platform)</option>
+              <option value="defense_data" className="bg-slate-900 text-slate-200">Palantir vs. Snowflake (Sovereign Data & Governance)</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={() => setIsDiffModalOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 border border-hud-rose/40 text-xs text-hud-rose hover:bg-hud-rose/10 hover:border-hud-rose transition-all font-bold cursor-pointer"
+              title="Open Sentinel Side-by-Side Change Diff"
+            >
+              <Split className="w-3.5 h-3.5" />
+              <span>SENTINEL DIFF</span>
+            </button>
+
+            <button
+              onClick={() => setIsAuditModalOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 border border-hud-emerald/40 text-xs text-hud-emerald hover:bg-hud-emerald/10 hover:border-hud-emerald transition-all font-bold cursor-pointer"
+              title="Inspect Verifiable SHA-256 Cryptographic Provenance Chain"
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>AUDIT PROOF</span>
+            </button>
+
+            <button
+              onClick={handleExportDossier}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-300 hover:text-slate-100 hover:border-slate-500 transition-all font-bold cursor-pointer"
+              title="Download Executive Intelligence Report"
+            >
+              <FileDown className="w-3.5 h-3.5" />
+              <span>EXPORT DOSSIER</span>
+            </button>
+          </div>
+        </div>
+
         {/* TAB 1: WORLD */}
         {activeTab === "WORLD" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -752,8 +977,8 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
                 </button>
               </div>
 
-              <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
-                {signals.slice(0, 3).map((sig) => (
+              <div className="space-y-3 max-h-[540px] overflow-y-auto pr-1">
+                {signals.slice(0, 4).map((sig) => (
                   <SignalCard
                     key={sig.id}
                     signal={sig}
@@ -765,7 +990,6 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
                     isPredicting={predictingSignalId === sig.id}
                     isSimulating={simulatingSignalId === sig.id}
                   />
-
                 ))}
               </div>
             </div>
@@ -787,9 +1011,9 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
               <button
                 onClick={async () => {
                   const nt = await api.createWatchTarget({
-                    name: "Competitor X Enterprise Pricing",
+                    name: "OpenAI Platform & Model Releases",
                     entity_type: "pricing_page",
-                    url: "https://competitorx.ai/pricing",
+                    url: "https://openai.com/api/pricing",
                     category: "PRICING",
                     importance: 95,
                     monitoring_frequency: "hourly",
@@ -901,22 +1125,25 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
                   key={pred.id}
                   prediction={pred}
                   onSimulate={(p) => {
-                    handleWhatCanWeDo({
-                      id: p.signal_id || "sig-demo",
-                      entity: "Competitor X",
-                      source: "Oracle Forecast",
-                      url: "https://competitorx.ai",
-                      timestamp: new Date().toISOString(),
-                      event_type: "strategic_prediction",
-                      title: p.prediction,
-                      summary: p.reasoning,
-                      importance: 90,
-                      severity: "high",
-                      confidence: p.confidence,
-                      actionability: "high",
-                      is_demo: true,
-                      created_at: new Date().toISOString()
-                    });
+                    const matchedSignal = signals.find((s) => s.id === p.signal_id);
+                    handleWhatCanWeDo(
+                      matchedSignal || {
+                        id: p.signal_id || "sig-live",
+                        entity: "OpenAI",
+                        source: "Oracle Bayesian Engine",
+                        url: "https://openai.com/api/pricing",
+                        timestamp: new Date().toISOString(),
+                        event_type: "strategic_prediction",
+                        title: p.prediction,
+                        summary: p.reasoning,
+                        importance: 92,
+                        severity: "high",
+                        confidence: p.confidence,
+                        actionability: "high",
+                        is_demo: false,
+                        created_at: new Date().toISOString()
+                      }
+                    );
                   }}
                 />
               ))}
@@ -997,7 +1224,7 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
 
         {/* TAB 8: TIMELINE */}
         {activeTab === "TIMELINE" && (
-          <Timeline events={timelineEvents} entityName="Competitor X" />
+          <Timeline events={timelineEvents} entityName={selectedEntity?.name || "OpenAI"} />
         )}
 
         {/* TAB 9: AI REPUTATION */}
@@ -1026,7 +1253,7 @@ ${activeExecutedAction ? `- Action ID: ${activeExecutedAction.action_id}\n- Stat
                   <div className="text-2xl font-bold text-hud-rose mt-1">
                     {aiReputation.competitor_mentions}
                   </div>
-                  <span className="text-slate-500 text-[10px]">Competitor X Surge</span>
+                  <span className="text-slate-500 text-[10px]">Frontier Rival Activity</span>
                 </div>
                 <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800">
                   <span className="text-slate-400 uppercase">RECOMMENDATION PATTERNS</span>

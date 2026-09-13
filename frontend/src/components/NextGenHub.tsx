@@ -36,7 +36,7 @@ export const NextGenHub: React.FC = () => {
 
   const loadGovernor = async () => {
     try {
-      const data = await api.getGovernorVolatility("Competitor X");
+      const data = await api.getGovernorVolatility("OpenAI");
       setVolatilityData(data);
     } catch (e) {
       console.error(e);
@@ -65,9 +65,9 @@ export const NextGenHub: React.FC = () => {
     setIsLoading(true);
     try {
       const res = await api.runAdversarialDebate(
-        "Competitor reduced enterprise pricing by 22%",
-        "Competitor X",
-        "Discounts applied with automated compliance hooks."
+        "OpenAI reduced API pricing by 50% across frontier models",
+        "OpenAI",
+        "Token pricing discounted with batch API expansion."
       );
       setDebateData(res);
     } catch (e) {
@@ -284,7 +284,7 @@ export const NextGenHub: React.FC = () => {
         <div className="space-y-4 text-xs font-mono">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800">
-              <span className="text-slate-400 uppercase">ACME AI AGGREGATE SHARE OF VOICE</span>
+              <span className="text-slate-400 uppercase">{(radarData?.brand || "Anthropic").toUpperCase()} SHARE OF VOICE</span>
               <div className="text-3xl font-black text-hud-cyan mt-1">
                 {radarData?.aggregate_brand_share_of_voice || 57}%
               </div>
@@ -294,12 +294,12 @@ export const NextGenHub: React.FC = () => {
             </div>
 
             <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800">
-              <span className="text-slate-400 uppercase">COMPETITOR X SHARE OF VOICE</span>
+              <span className="text-slate-400 uppercase">{(radarData?.competitor || "OpenAI").toUpperCase()} SHARE OF VOICE</span>
               <div className="text-3xl font-black text-hud-rose mt-1">
                 {radarData?.aggregate_competitor_share_of_voice || 43}%
               </div>
               <span className="text-slate-400 text-[10px] mt-1 block">
-                Surging exclusively on price-sensitive prompts
+                Surging on introductory developer tier volume
               </span>
             </div>
           </div>
@@ -313,8 +313,8 @@ export const NextGenHub: React.FC = () => {
                 </div>
                 <div className="flex-1 max-w-xs">
                   <div className="flex justify-between text-[10px] mb-1">
-                    <span className="text-hud-cyan font-bold">Acme {m.brand_share_of_voice}%</span>
-                    <span className="text-hud-rose font-bold">Competitor {m.competitor_share_of_voice}%</span>
+                    <span className="text-hud-cyan font-bold">{radarData?.brand || "Brand"} {m.brand_share_of_voice}%</span>
+                    <span className="text-hud-rose font-bold">{radarData?.competitor || "Competitor"} {m.competitor_share_of_voice}%</span>
                   </div>
                   <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden flex">
                     <div className="bg-hud-cyan h-full" style={{ width: `${m.brand_share_of_voice}%` }} />

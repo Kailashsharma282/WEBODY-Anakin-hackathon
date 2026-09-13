@@ -166,12 +166,12 @@ export const EntityCard: React.FC<EntityCardProps> = ({
         {activeSubTab === "why it matters" && (
           <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 space-y-2">
             <h4 className="text-xs font-mono text-hud-amber uppercase font-bold">
-              STRATEGIC RELEVANCE TO ACME AI
+              STRATEGIC RELEVANCE & MARKET POSITION
             </h4>
             <p className="text-xs text-slate-200 font-sans leading-relaxed">
-              If left unaddressed, enterprise buyers will leverage this price reduction during
-              Q3 renewal cycles. Bundling our Governance Suite v2 provides an immediate moat
-              without sacrificing revenue margins.
+              If left unaddressed, enterprise buyers will leverage {entity.name}&apos;s updates during
+              upcoming procurement and renewal cycles. Deploying high-assurance prompt caching, governance
+              residency, and reasoning benchmarks provides an immediate defensibility moat.
             </p>
           </div>
         )}
@@ -191,10 +191,10 @@ export const EntityCard: React.FC<EntityCardProps> = ({
             ) : (
               <div className="p-3 rounded-lg bg-slate-900/60 border border-slate-800 flex justify-between items-center">
                 <div>
-                  <span className="font-bold text-slate-200">Acme AI</span>
-                  <div className="text-[10px] text-slate-500 uppercase">COMPETES WITH</div>
+                  <span className="font-bold text-slate-200">Enterprise AI Frontier</span>
+                  <div className="text-[10px] text-slate-500 uppercase">ECOSYSTEM LINK</div>
                 </div>
-                <span className="text-hud-rose text-xs">Pricing & Governance</span>
+                <span className="text-hud-cyan text-xs">Direct Frontier Model Competition</span>
               </div>
             )}
           </div>

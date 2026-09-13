@@ -85,10 +85,16 @@ class MappingService:
         if anakin_client.has_api_key():
             try:
                 res = await anakin_client.map_domain(url)
-                urls = res.get("urls", [])
+                job_id = res.get("jobId") or res.get("id")
+                if job_id:
+                    polled = await anakin_client.poll_map_job(job_id, timeout_sec=10)
+                    urls = polled.get("links") or polled.get("urls", [])
+                else:
+                    urls = res.get("links") or res.get("urls", [])
                 if urls:
                     discovered_urls = urls[:max_pages]
                     live_anakin_used = True
+                    logger.info(f"Anakin Map successfully discovered {len(discovered_urls)} live URLs for {clean_domain}")
             except Exception as e:
                 logger.warning(f"Anakin Map live call failed ({e}). Generating domain topology.")
 

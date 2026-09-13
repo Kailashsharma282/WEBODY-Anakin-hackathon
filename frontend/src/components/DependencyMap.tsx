@@ -24,7 +24,7 @@ export const DependencyMap: React.FC<DependencyMapProps> = ({
   onMapDomain,
   isLoading = false,
 }) => {
-  const [domainInput, setDomainInput] = useState("competitorx.ai");
+  const [domainInput, setDomainInput] = useState("openai.com");
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -51,51 +51,51 @@ export const DependencyMap: React.FC<DependencyMapProps> = ({
 
   const pages = domainTopology?.pages || [
     {
-      url: "https://competitorx.ai/pricing",
+      url: "https://openai.com/api/pricing",
       page_category: "PRICING",
-      title: "Competitor X Pricing & Plans",
+      title: "OpenAI API Pricing & Token Tiers",
       importance: 95,
-      summary: "Tiered pricing table including Enterprise discounted tier.",
+      summary: "Tiered pricing table for GPT-4o, o1, and embeddings models.",
       status: "mapped",
     },
     {
-      url: "https://competitorx.ai/docs/governance",
+      url: "https://platform.openai.com/docs",
       page_category: "DOCUMENTATION",
-      title: "AI Governance & Guardrails API Reference",
-      importance: 90,
-      summary: "API documentation detailing automated compliance hooks.",
+      title: "OpenAI Platform Developer API Documentation",
+      importance: 92,
+      summary: "API reference detailing structured outputs, tools, and batch inference.",
       status: "mapped",
     },
     {
-      url: "https://competitorx.ai/security/soc2",
+      url: "https://trust.openai.com",
       page_category: "SECURITY",
-      title: "Security & Trust Portal",
-      importance: 85,
-      summary: "SOC2 Type II and GDPR audit attestations.",
+      title: "OpenAI Trust Portal & SOC2 Compliance",
+      importance: 90,
+      summary: "SOC2 Type II, HIPAA readiness, and GDPR compliance attestations.",
       status: "mapped",
     },
     {
-      url: "https://competitorx.ai/careers/compliance-lead",
-      page_category: "CAREERS",
-      title: "Careers: GovCloud Compliance Lead",
-      importance: 75,
-      summary: "Job description signaling public sector compliance expansion.",
+      url: "https://openai.com/enterprise",
+      page_category: "CUSTOMERS",
+      title: "ChatGPT Enterprise & Governance Controls",
+      importance: 88,
+      summary: "Dedicated workspace admin console and privacy commitments.",
       status: "mapped",
     },
     {
-      url: "https://competitorx.ai/integrations/aws",
-      page_category: "INTEGRATIONS",
-      title: "AWS Bedrock Marketplace Integration",
-      importance: 80,
-      summary: "Direct marketplace deployment listing.",
-      status: "mapped",
-    },
-    {
-      url: "https://competitorx.ai/blog/announcements",
+      url: "https://openai.com/index/category/announcements/",
       page_category: "BLOG",
-      title: "Blog: Modernizing Enterprise AI Auditing",
-      importance: 70,
-      summary: "Executive post on compliance cost commoditization.",
+      title: "OpenAI News & Frontier Research Announcements",
+      importance: 85,
+      summary: "Product updates, system cards, and release notifications.",
+      status: "mapped",
+    },
+    {
+      url: "https://openai.com/careers",
+      page_category: "CAREERS",
+      title: "OpenAI Engineering & Alignment Careers",
+      importance: 75,
+      summary: "Talent acquisition listings indicating scaling frontiers.",
       status: "mapped",
     },
   ];
@@ -133,7 +133,7 @@ export const DependencyMap: React.FC<DependencyMapProps> = ({
               type="text"
               value={domainInput}
               onChange={(e) => setDomainInput(e.target.value)}
-              placeholder="e.g. competitorx.ai"
+              placeholder="e.g. openai.com"
               className="w-full px-3 py-2 bg-slate-950/80 border border-slate-700 rounded-lg text-xs font-mono text-slate-200 focus:outline-none focus:border-hud-cyan"
             />
           </div>

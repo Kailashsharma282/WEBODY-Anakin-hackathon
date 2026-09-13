@@ -34,14 +34,14 @@ async def lifespan(app: FastAPI):
             res = await db.execute(select(Entity))
             existing_entities = res.scalars().all()
             if not existing_entities:
-                logger.info("Seeding initial World Model graph (Acme AI, Competitor X, AWS, Regulators)...")
+                logger.info("Seeding initial World Model graph (Anthropic, OpenAI, AWS, Regulators)...")
                 await world_model_service.seed_initial_world(db)
                 
-                # Seed historical timeline for Competitor X
-                comp_res = await db.execute(select(Entity).where(Entity.name == "Competitor X"))
-                comp_x = comp_res.scalars().first()
-                if comp_x:
-                    await timeline_service.seed_entity_timeline(db, comp_x)
+                # Seed historical timeline for OpenAI
+                comp_res = await db.execute(select(Entity).where(Entity.name == "OpenAI"))
+                openai_ent = comp_res.scalars().first()
+                if openai_ent:
+                    await timeline_service.seed_entity_timeline(db, openai_ent)
                 logger.info("World Model seeded successfully.")
         except Exception as e:
             logger.error(f"Error seeding initial world model: {e}")
