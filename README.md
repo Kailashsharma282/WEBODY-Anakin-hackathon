@@ -3,6 +3,8 @@
 > **"The web changes every second. WEBODY remembers, understands, predicts, and acts."**
 > 
 > **Hackathon:** Anakin Forge — Build AI Agents That Read, Reason, and Act  
+> **Organized by:** Team Anakin (Anakin.io)  
+> **Live Deployment:** [webody-anakin-hackathon.vercel.app](https://webody-anakin-hackathon.vercel.app/)  
 > **Participant:** Pochiraju Kailash Ram Markandeya Sharma  
 > **Team:** kailashsharma  
 
